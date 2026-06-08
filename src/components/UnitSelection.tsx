@@ -1,0 +1,60 @@
+import { UNITS } from '../data/units';
+import type { StudentData } from '../types';
+import { isUnitUnlocked } from '../utils/storage';
+import { predictScore } from '../utils/scorePrediction';
+
+interface Props {
+  student: StudentData;
+  onSelectUnit: (unit: number) => void;
+  onBack: () => void;
+}
+
+export default function UnitSelection({ student, onSelectUnit, onBack }: Props) {
+  const predicted = predictScore(student.questionStats);
+
+  return (
+    <div className="screen unit-screen">
+      <header className="screen-header">
+        <button className="btn btn-text" onClick={onBack}>
+          ← もどる
+        </button>
+        <h2>{student.name} さん</h2>
+      </header>
+
+      {predicted !== null && (
+        <div className="score-prediction">
+          <span className="prediction-label">得点予測</span>
+          <span className="prediction-value">
+            今の実力だと定期テストで約 <strong>{predicted}点</strong> とれるでしょう
+          </span>
+        </div>
+      )}
+
+      <div className="unit-list">
+        {UNITS.map((unit) => {
+          const progress = student.unitProgress[unit.number];
+          const unlocked = isUnitUnlocked(student, unit.number);
+          const status = progress?.status ?? '未着手';
+
+          return (
+            <button
+              key={unit.number}
+              className={`unit-card ${unlocked ? '' : 'locked'} status-${status}`}
+              onClick={() => unlocked && onSelectUnit(unit.number)}
+              disabled={!unlocked}
+            >
+              <div className="unit-number">{unit.title}</div>
+              <div className="unit-desc">{unit.description}</div>
+              <div className={`unit-status badge-${status}`}>
+                {!unlocked ? '🔒 前の単元をクリアしよう' : status}
+              </div>
+              {progress?.testAccuracy !== undefined && (
+                <div className="unit-score">テスト {progress.testAccuracy}%</div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
