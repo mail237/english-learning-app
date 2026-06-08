@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { STUDENTS } from '../data/students';
 import { loadSettings, saveSettings } from '../utils/storage';
 import { preloadVoices } from '../utils/speech';
+import { fetchStudents, loadSheetsConfig } from '../utils/sheetsApi';
 
 interface Props {
   onStart: (name: string) => void;
@@ -9,6 +10,9 @@ interface Props {
 
 export default function StartScreen({ onStart }: Props) {
   const [name, setName] = useState('');
+  const [students, setStudents] = useState<string[]>([...STUDENTS]);
+  const [loadingStudents, setLoadingStudents] = useState(true);
+  const [sheetsConnected, setSheetsConnected] = useState(false);
   const [showTeacher, setShowTeacher] = useState(false);
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -18,6 +22,22 @@ export default function StartScreen({ onStart }: Props) {
     const warmUp = () => preloadVoices();
     window.addEventListener('pointerdown', warmUp, { once: true });
     return () => window.removeEventListener('pointerdown', warmUp);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const config = await loadSheetsConfig();
+      if (!cancelled) setSheetsConnected(config !== null);
+      const list = await fetchStudents();
+      if (!cancelled) {
+        setStudents(list);
+        setLoadingStudents(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleStart = () => {
@@ -52,6 +72,9 @@ export default function StartScreen({ onStart }: Props) {
       <div className="hero">
         <h1>英語学習アプリ</h1>
         <p className="subtitle">英文の意味をたくさん体験しよう！</p>
+        {sheetsConnected && (
+          <p className="sheets-status">☁️ スプレッドシート連携中</p>
+        )}
       </div>
 
       <div className="card">
@@ -63,9 +86,12 @@ export default function StartScreen({ onStart }: Props) {
           className="select-large"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          disabled={loadingStudents}
         >
-          <option value="">--- 選んでください ---</option>
-          {STUDENTS.map((s) => (
+          <option value="">
+            {loadingStudents ? '読み込み中...' : '--- 選んでください ---'}
+          </option>
+          {students.map((s) => (
             <option key={s} value={s}>
               {s}
             </option>
@@ -75,7 +101,7 @@ export default function StartScreen({ onStart }: Props) {
         <button
           className="btn btn-primary btn-large"
           onClick={handleStart}
-          disabled={!name}
+          disabled={!name || loadingStudents}
         >
           はじめる
         </button>

@@ -20,8 +20,9 @@ function App() {
   const [testQuestions, setTestQuestions] = useState<Question[]>([]);
   const [fullResult, setFullResult] = useState<FullTestResult | null>(null);
 
-  const handleStart = (name: string) => {
-    setStudent(loadStudent(name));
+  const handleStart = async (name: string) => {
+    const data = await loadStudent(name);
+    setStudent(data);
     setScreen('units');
   };
 

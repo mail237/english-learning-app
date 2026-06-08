@@ -80,6 +80,13 @@ body {
   font-size: var(--font-size-base);
 }
 
+.sheets-status {
+  font-size: 14px;
+  color: var(--color-success);
+  margin-top: 8px;
+  font-weight: 600;
+}
+
 /* Cards */
 .card {
   background: var(--color-card);
