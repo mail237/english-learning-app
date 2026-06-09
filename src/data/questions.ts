@@ -1,6 +1,7 @@
 import type { Question } from '../types';
+import { ADDITIONAL_QUESTIONS } from './questions/additional';
 
-export const QUESTIONS: Question[] = [
+const BASE_QUESTIONS: Question[] = [
   // Unit 1 - Step 1
   { id: 'q001', unit: 1, step: 1, level: '基礎', type: 'meaning', sentence: 'I am Ken.', question: 'Kenって誰のこと？', choices: ['私', 'あなた', '彼'], answer: 0, showText: true },
   { id: 'q002', unit: 1, step: 1, level: '基礎', type: 'word-order', sentence: 'I am Ken.', question: '正しい順番に並べよう', words: ['am', 'I', 'Ken'], answer: ['I', 'am', 'Ken'] },
@@ -75,6 +76,8 @@ export const QUESTIONS: Question[] = [
   { id: 'q057', unit: 5, step: 3, level: '発展', type: 'fill-in', sentence: 'We ___ study harder.', question: '___に入る単語はどれ？', choices: ['should', 'can', 'may'], answer: 0 },
   { id: 'q058', unit: 5, step: 3, level: '発展', type: 'listening', sentence: 'We should study harder.', question: '聞こえた英文の意味はどれ？', choices: ['もっと勉強すべきです。', 'もっと遊ぶべきです。', 'もっと休むべきです。'], answer: 0 },
 ];
+
+export const QUESTIONS: Question[] = [...BASE_QUESTIONS, ...ADDITIONAL_QUESTIONS];
 
 export function getQuestionsByUnit(unit: number): Question[] {
   return QUESTIONS.filter((q) => q.unit === unit);

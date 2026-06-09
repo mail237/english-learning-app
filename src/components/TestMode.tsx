@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Question, TestAnswer } from '../types';
+import { TEST_QUESTION_COUNT } from '../data/constants';
 import { getQuestionsByUnit } from '../data/questions';
 import { speakSentence, stopSpeech } from '../utils/speech';
 import { shuffleForTest } from '../utils/spiral';
@@ -12,7 +13,9 @@ interface Props {
 }
 
 export default function TestMode({ unit, onComplete }: Props) {
-  const [questions] = useState<Question[]>(() => shuffleForTest(getQuestionsByUnit(unit), 10));
+  const [questions] = useState<Question[]>(() =>
+    shuffleForTest(getQuestionsByUnit(unit), TEST_QUESTION_COUNT),
+  );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<TestAnswer[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
