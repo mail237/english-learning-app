@@ -1,6 +1,7 @@
 import type { Question } from '../types';
 import { ADDITIONAL_QUESTIONS } from './questions/additional';
 import { ADDITIONAL_QUESTIONS_2 } from './questions/additional2';
+import { QA_NEGATIVE_QUESTIONS } from './questions/qaNegative';
 
 const BASE_QUESTIONS: Question[] = [
   // Unit 1 - Step 1
@@ -82,6 +83,7 @@ export const QUESTIONS: Question[] = [
   ...BASE_QUESTIONS,
   ...ADDITIONAL_QUESTIONS,
   ...ADDITIONAL_QUESTIONS_2,
+  ...QA_NEGATIVE_QUESTIONS,
 ];
 
 export function getQuestionsByUnit(unit: number): Question[] {
