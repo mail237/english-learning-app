@@ -83,6 +83,14 @@ export function getQuestionsByUnit(unit: number): Question[] {
   return QUESTIONS.filter((q) => q.unit === unit);
 }
 
+export function getQuestionsByUnitAndStep(unit: number, step: number): Question[] {
+  return QUESTIONS.filter((q) => q.unit === unit && q.step === step);
+}
+
+export function getQuestionsBeforeStep(unit: number, step: number): Question[] {
+  return QUESTIONS.filter((q) => q.unit < unit || (q.unit === unit && q.step < step));
+}
+
 export function getQuestionsUpToUnit(unit: number): Question[] {
   return QUESTIONS.filter((q) => q.unit <= unit);
 }

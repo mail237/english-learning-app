@@ -1,5 +1,5 @@
 import type { Question, QuestionStats } from '../types';
-import { getPreviousUnitQuestions, getQuestionsByUnit } from '../data/questions';
+import { getQuestionsBeforeStep, getQuestionsByUnitAndStep } from '../data/questions';
 
 const SPIRAL_RATIO = 0.3;
 
@@ -21,9 +21,9 @@ function weightedPick(questions: Question[], stats: Record<string, QuestionStats
   return questions[questions.length - 1];
 }
 
-export function buildPracticePool(unit: number): Question[] {
-  const current = getQuestionsByUnit(unit);
-  const previous = getPreviousUnitQuestions(unit);
+export function buildPracticePool(unit: number, step: number): Question[] {
+  const current = getQuestionsByUnitAndStep(unit, step);
+  const previous = getQuestionsBeforeStep(unit, step);
   const spiralCount = Math.ceil(current.length * SPIRAL_RATIO);
   const shuffledPrev = [...previous].sort(() => Math.random() - 0.5);
   const spiralQuestions = shuffledPrev.slice(0, spiralCount);

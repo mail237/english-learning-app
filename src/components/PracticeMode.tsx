@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Feedback, Question, QuestionStats, StudentData } from '../types';
-import { getQuestionsByUnit } from '../data/questions';
+import { getQuestionsByUnitAndStep } from '../data/questions';
+import { formatStageLabel } from '../utils/unitProgress';
 import { speakSentence, stopSpeech } from '../utils/speech';
 import { buildPracticePool, pickNextQuestion } from '../utils/spiral';
 import { getSpeechText, shouldAutoSpeak } from '../utils/questionHelpers';
@@ -9,13 +10,14 @@ import QuestionRenderer from './questions/QuestionRenderer';
 interface Props {
   student: StudentData;
   unit: number;
+  step: number;
   onComplete: (accuracy: number, updatedStudent: StudentData) => void;
   onBack: () => void;
 }
 
-export default function PracticeMode({ student, unit, onComplete, onBack }: Props) {
-  const unitQuestions = getQuestionsByUnit(unit);
-  const pool = useRef(buildPracticePool(unit)).current;
+export default function PracticeMode({ student, unit, step, onComplete, onBack }: Props) {
+  const unitQuestions = getQuestionsByUnitAndStep(unit, step);
+  const pool = useRef(buildPracticePool(unit, step)).current;
   const [remaining, setRemaining] = useState(() => new Set(unitQuestions.map((q) => q.id)));
   const [current, setCurrent] = useState<Question | null>(null);
   const [feedback, setFeedback] = useState<Feedback>('none');
@@ -152,6 +154,7 @@ export default function PracticeMode({ student, unit, onComplete, onBack }: Prop
           ← もどる
         </button>
         <div className="progress-info">
+          <span className="stage-badge">{formatStageLabel(step)}</span>
           あと <strong>{remaining.size}</strong> 問
           <span className="progress-bar-wrap">
             <span

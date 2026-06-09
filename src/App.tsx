@@ -6,6 +6,9 @@ import StartScreen from './components/StartScreen';
 import UnitSelection from './components/UnitSelection';
 import PracticeMode from './components/PracticeMode';
 import PracticeComplete from './components/PracticeComplete';
+import StepComplete from './components/StepComplete';
+import { STEPS_PER_UNIT } from './data/constants';
+import { getActiveStep, isAllPracticeDone } from './utils/unitProgress';
 import TestMode from './components/TestMode';
 import VocabTestMode from './components/VocabTestMode';
 import SpeakingCheck from './components/SpeakingCheck';
@@ -16,6 +19,8 @@ function App() {
   const [screen, setScreen] = useState<Screen>('start');
   const [student, setStudent] = useState<StudentData | null>(null);
   const [currentUnit, setCurrentUnit] = useState<number>(1);
+  const [currentStep, setCurrentStep] = useState<number>(1);
+  const [completedStep, setCompletedStep] = useState<number>(0);
   const [practiceAccuracy, setPracticeAccuracy] = useState(0);
   const [testQuestions, setTestQuestions] = useState<Question[]>([]);
   const [fullResult, setFullResult] = useState<FullTestResult | null>(null);
@@ -29,31 +34,48 @@ function App() {
   const handleSelectUnit = (unit: number) => {
     if (!student) return;
     setCurrentUnit(unit);
-    const status = student.unitProgress[unit]?.status ?? '未着手';
+    const progress = student.unitProgress[unit];
 
-    if (status === '練習完了') {
+    if (isAllPracticeDone(progress)) {
       setScreen('practiceComplete');
-    } else {
-      const updated = {
+      return;
+    }
+
+    const step = getActiveStep(progress);
+    setCurrentStep(step);
+
+    if (progress?.status !== '練習中' && progress?.status !== 'テスト済') {
+      const updated: StudentData = {
         ...student,
         unitProgress: {
           ...student.unitProgress,
-          [unit]: { ...student.unitProgress[unit], status: '練習中' as const },
+          [unit]: {
+            ...progress,
+            status: '練習中',
+            completedStep: progress?.completedStep ?? 0,
+          },
         },
       };
       setStudent(updated);
       saveStudent(updated);
-      setScreen('practice');
     }
+
+    setScreen('practice');
   };
 
   const handlePracticeComplete = (accuracy: number, updatedStudent: StudentData) => {
+    const prev = updatedStudent.unitProgress[currentUnit];
+    const newCompletedStep = currentStep;
+    const allDone = newCompletedStep >= STEPS_PER_UNIT;
+
     const updated: StudentData = {
       ...updatedStudent,
       unitProgress: {
         ...updatedStudent.unitProgress,
         [currentUnit]: {
-          status: '練習完了',
+          ...prev,
+          status: allDone ? '練習完了' : '練習中',
+          completedStep: newCompletedStep,
           practiceAccuracy: accuracy,
         },
       },
@@ -61,7 +83,19 @@ function App() {
     setStudent(updated);
     saveStudent(updated);
     setPracticeAccuracy(accuracy);
-    setScreen('practiceComplete');
+    setCompletedStep(newCompletedStep);
+
+    if (allDone) {
+      setScreen('practiceComplete');
+    } else {
+      setScreen('stepComplete');
+    }
+  };
+
+  const handleStepContinue = () => {
+    const nextStep = completedStep + 1;
+    setCurrentStep(nextStep);
+    setScreen('practice');
   };
 
   const handleTestUnlock = () => {
@@ -181,7 +215,16 @@ function App() {
         <PracticeMode
           student={student}
           unit={currentUnit}
+          step={currentStep}
           onComplete={handlePracticeComplete}
+          onBack={handleBackToUnits}
+        />
+      )}
+
+      {screen === 'stepComplete' && (
+        <StepComplete
+          completedStep={completedStep}
+          onContinue={handleStepContinue}
           onBack={handleBackToUnits}
         />
       )}

@@ -1,5 +1,6 @@
 import type { AppSettings, SessionRecord, StudentData, UnitProgress } from '../types';
 import { UNITS } from '../data/units';
+import { normalizeUnitProgress } from './unitProgress';
 import {
   fetchStudentProgress,
   loadSheetsConfig,
@@ -18,9 +19,19 @@ const DEFAULT_SETTINGS: AppSettings = {
 function defaultUnitProgress(): Record<number, UnitProgress> {
   const progress: Record<number, UnitProgress> = {};
   for (const unit of UNITS) {
-    progress[unit.number] = { status: '未着手' };
+    progress[unit.number] = { status: '未着手', completedStep: 0 };
   }
   return progress;
+}
+
+function mergeUnitProgress(
+  stored: Record<number, UnitProgress> | undefined,
+): Record<number, UnitProgress> {
+  const merged = { ...defaultUnitProgress(), ...stored };
+  for (const unit of UNITS) {
+    merged[unit.number] = normalizeUnitProgress(merged[unit.number]);
+  }
+  return merged;
 }
 
 export function loadStudentLocal(name: string): StudentData {
@@ -29,8 +40,7 @@ export function loadStudentLocal(name: string): StudentData {
     return { name, unitProgress: defaultUnitProgress(), questionStats: {} };
   }
   const data = JSON.parse(raw) as StudentData;
-  const progress = { ...defaultUnitProgress(), ...data.unitProgress };
-  return { ...data, name, unitProgress: progress };
+  return { ...data, name, unitProgress: mergeUnitProgress(data.unitProgress) };
 }
 
 export async function loadStudent(name: string): Promise<StudentData> {
@@ -42,7 +52,7 @@ export async function loadStudent(name: string): Promise<StudentData> {
 
   const merged: StudentData = {
     name,
-    unitProgress: { ...defaultUnitProgress(), ...remote.unitProgress },
+    unitProgress: mergeUnitProgress(remote.unitProgress),
     questionStats: remote.questionStats ?? {},
   };
   saveStudentLocal(merged);

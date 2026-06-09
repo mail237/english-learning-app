@@ -1,7 +1,9 @@
 import { UNITS } from '../data/units';
 import type { StudentData } from '../types';
+import { STEPS_PER_UNIT } from '../data/constants';
 import { isUnitUnlocked } from '../utils/storage';
 import { predictScore } from '../utils/scorePrediction';
+import { formatStageLabel, getActiveStep, isAllPracticeDone } from '../utils/unitProgress';
 
 interface Props {
   student: StudentData;
@@ -35,6 +37,13 @@ export default function UnitSelection({ student, onSelectUnit, onBack }: Props) 
           const progress = student.unitProgress[unit.number];
           const unlocked = isUnitUnlocked(student, unit.number);
           const status = progress?.status ?? '未着手';
+          const stageDone = progress?.completedStep ?? 0;
+          const activeStep = getActiveStep(progress);
+          const stageText = isAllPracticeDone(progress)
+            ? `全ステージ完了`
+            : status === '未着手'
+              ? formatStageLabel(1)
+              : `${formatStageLabel(activeStep)}（${stageDone}/${STEPS_PER_UNIT}完了）`;
 
           return (
             <button
@@ -45,6 +54,7 @@ export default function UnitSelection({ student, onSelectUnit, onBack }: Props) 
             >
               <div className="unit-number">{unit.title}</div>
               <div className="unit-desc">{unit.description}</div>
+              <div className="unit-stage">{unlocked ? stageText : ''}</div>
               <div className={`unit-status badge-${status}`}>
                 {!unlocked ? '🔒 前の単元をクリアしよう' : status}
               </div>

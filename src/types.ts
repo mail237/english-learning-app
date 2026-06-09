@@ -86,6 +86,8 @@ export interface QuestionStats {
 
 export interface UnitProgress {
   status: UnitStatus;
+  /** 完了したステージ数（0=未完了, 3=全ステージ完了） */
+  completedStep?: number;
   practiceAccuracy?: number;
   testAccuracy?: number;
   testDate?: string;
@@ -122,6 +124,7 @@ export type Screen =
   | 'start'
   | 'units'
   | 'practice'
+  | 'stepComplete'
   | 'practiceComplete'
   | 'test'
   | 'vocabTest'
