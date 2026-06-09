@@ -29,7 +29,7 @@ export const QUESTIONS: Question[] = [
   // Unit 2 - Step 2
   { id: 'q021', unit: 2, step: 2, level: '基礎', type: 'meaning', sentence: 'I eat breakfast every morning.', question: 'いつ朝ごはんを食べる？', choices: ['毎朝', '毎晩', '週に1回'], answer: 0, showText: true },
   { id: 'q022', unit: 2, step: 2, level: '応用', type: 'listening', sentence: 'My father works at a hospital.', question: '聞こえた英文の意味はどれ？', choices: ['父は病院で働きます。', '父は学校で働きます。', '父は会社で働きます。'], answer: 0 },
-  { id: 'q023', unit: 2, step: 2, level: '応用', type: 'error-detection', question: '正しい英文はどっち？', choices: ['She reads books.', 'She read books.'], answer: 0 },
+  { id: 'q023', unit: 2, step: 2, level: '応用', type: 'error-detection', question: '「彼女は本を読みます。」正しい英文はどっち？', choices: ['She reads books.', 'She read books every day.'], answer: 0 },
   { id: 'q024', unit: 2, step: 2, level: '応用', type: 'fill-in', sentence: 'We ___ TV after dinner.', question: '___に入る単語はどれ？', choices: ['watch', 'watches', 'watching'], answer: 0 },
   // Unit 2 - Step 3
   { id: 'q025', unit: 2, step: 3, level: '応用', type: 'word-order', sentence: 'Tom goes to school by bus.', question: '正しい順番に並べよう', words: ['bus', 'by', 'school', 'to', 'goes', 'Tom'], answer: ['Tom', 'goes', 'to', 'school', 'by', 'bus'] },
