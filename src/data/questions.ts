@@ -1,5 +1,6 @@
 import type { Question } from '../types';
 import { ADDITIONAL_QUESTIONS } from './questions/additional';
+import { ADDITIONAL_QUESTIONS_2 } from './questions/additional2';
 
 const BASE_QUESTIONS: Question[] = [
   // Unit 1 - Step 1
@@ -77,7 +78,11 @@ const BASE_QUESTIONS: Question[] = [
   { id: 'q058', unit: 5, step: 3, level: '発展', type: 'listening', sentence: 'We should study harder.', question: '聞こえた英文の意味はどれ？', choices: ['もっと勉強すべきです。', 'もっと遊ぶべきです。', 'もっと休むべきです。'], answer: 0 },
 ];
 
-export const QUESTIONS: Question[] = [...BASE_QUESTIONS, ...ADDITIONAL_QUESTIONS];
+export const QUESTIONS: Question[] = [
+  ...BASE_QUESTIONS,
+  ...ADDITIONAL_QUESTIONS,
+  ...ADDITIONAL_QUESTIONS_2,
+];
 
 export function getQuestionsByUnit(unit: number): Question[] {
   return QUESTIONS.filter((q) => q.unit === unit);
