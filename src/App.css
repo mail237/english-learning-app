@@ -733,6 +733,10 @@ body {
 }
 
 /* Vocab test */
+.test-badge-review {
+  background: #e67e22;
+}
+
 .test-badge-vocab {
   background: #722ed1;
 }

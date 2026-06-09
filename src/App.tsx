@@ -13,6 +13,8 @@ import TestMode from './components/TestMode';
 import VocabTestMode from './components/VocabTestMode';
 import SpeakingCheck from './components/SpeakingCheck';
 import TestResults from './components/TestResults';
+import ReviewMode from './components/ReviewMode';
+import { questionsFromWrongAnswers, uniqueQuestions } from './utils/review';
 import './App.css';
 
 function App() {
@@ -24,6 +26,9 @@ function App() {
   const [practiceAccuracy, setPracticeAccuracy] = useState(0);
   const [testQuestions, setTestQuestions] = useState<Question[]>([]);
   const [fullResult, setFullResult] = useState<FullTestResult | null>(null);
+  const [reviewQuestions, setReviewQuestions] = useState<Question[]>([]);
+  const [returnScreen, setReturnScreen] = useState<Screen>('testResults');
+  const [sessionWrongQuestions, setSessionWrongQuestions] = useState<Question[]>([]);
 
   const handleStart = async (name: string) => {
     const data = await loadStudent(name);
@@ -63,7 +68,12 @@ function App() {
     setScreen('practice');
   };
 
-  const handlePracticeComplete = (accuracy: number, updatedStudent: StudentData) => {
+  const handlePracticeComplete = (
+    accuracy: number,
+    updatedStudent: StudentData,
+    wrongQuestions: Question[],
+  ) => {
+    setSessionWrongQuestions(uniqueQuestions(wrongQuestions));
     const prev = updatedStudent.unitProgress[currentUnit];
     const newCompletedStep = currentStep;
     const allDone = newCompletedStep >= STEPS_PER_UNIT;
@@ -199,6 +209,21 @@ function App() {
     setScreen('units');
   };
 
+  const startReview = (questions: Question[], returnTo: Screen) => {
+    setReviewQuestions(uniqueQuestions(questions));
+    setReturnScreen(returnTo);
+    setScreen('review');
+  };
+
+  const handleReviewComplete = (updatedStudent: StudentData | null) => {
+    if (updatedStudent) {
+      setStudent(updatedStudent);
+      saveStudent(updatedStudent);
+    }
+    setReviewQuestions([]);
+    setScreen(returnScreen);
+  };
+
   return (
     <div className="app">
       {screen === 'start' && <StartScreen onStart={handleStart} />}
@@ -224,13 +249,20 @@ function App() {
       {screen === 'stepComplete' && (
         <StepComplete
           completedStep={completedStep}
+          wrongCount={sessionWrongQuestions.length}
           onContinue={handleStepContinue}
+          onReview={() => startReview(sessionWrongQuestions, 'stepComplete')}
           onBack={handleBackToUnits}
         />
       )}
 
       {screen === 'practiceComplete' && (
-        <PracticeComplete onUnlock={handleTestUnlock} onBack={handleBackToUnits} />
+        <PracticeComplete
+          wrongCount={sessionWrongQuestions.length}
+          onUnlock={handleTestUnlock}
+          onReview={() => startReview(sessionWrongQuestions, 'practiceComplete')}
+          onBack={handleBackToUnits}
+        />
       )}
 
       {screen === 'test' && (
@@ -252,7 +284,25 @@ function App() {
       )}
 
       {screen === 'testResults' && fullResult && (
-        <TestResults result={fullResult} onFinish={handleFinish} />
+        <TestResults
+          result={fullResult}
+          onFinish={handleFinish}
+          onReview={() =>
+            startReview(questionsFromWrongAnswers(fullResult.wrongTestAnswers), 'testResults')
+          }
+        />
+      )}
+
+      {screen === 'review' && (
+        <ReviewMode
+          questions={reviewQuestions}
+          student={student}
+          onComplete={handleReviewComplete}
+          onBack={() => {
+            setReviewQuestions([]);
+            setScreen(returnScreen);
+          }}
+        />
       )}
     </div>
   );

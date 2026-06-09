@@ -129,7 +129,8 @@ export type Screen =
   | 'test'
   | 'vocabTest'
   | 'speakingCheck'
-  | 'testResults';
+  | 'testResults'
+  | 'review';
 
 export interface TestAnswer {
   question: Question;

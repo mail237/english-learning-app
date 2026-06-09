@@ -2,11 +2,18 @@ import { useState } from 'react';
 import { loadSettings } from '../utils/storage';
 
 interface Props {
+  wrongCount?: number;
   onUnlock: () => void;
+  onReview?: () => void;
   onBack: () => void;
 }
 
-export default function PracticeComplete({ onUnlock, onBack }: Props) {
+export default function PracticeComplete({
+  wrongCount = 0,
+  onUnlock,
+  onReview,
+  onBack,
+}: Props) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
@@ -27,6 +34,12 @@ export default function PracticeComplete({ onUnlock, onBack }: Props) {
         <h2>練習完了！</h2>
         <p className="complete-message">先生のところへ持っていこう！</p>
       </div>
+
+      {wrongCount > 0 && onReview && (
+        <button type="button" className="btn btn-secondary btn-large" onClick={onReview}>
+          間違えた問題を復習する（{wrongCount}問）
+        </button>
+      )}
 
       <form className="card password-form" onSubmit={handleSubmit}>
         <label htmlFor="teacher-password" className="label">

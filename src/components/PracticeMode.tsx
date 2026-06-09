@@ -11,7 +11,7 @@ interface Props {
   student: StudentData;
   unit: number;
   step: number;
-  onComplete: (accuracy: number, updatedStudent: StudentData) => void;
+  onComplete: (accuracy: number, updatedStudent: StudentData, wrongQuestions: Question[]) => void;
   onBack: () => void;
 }
 
@@ -27,6 +27,7 @@ export default function PracticeMode({ student, unit, step, onComplete, onBack }
   const [showAnswer, setShowAnswer] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const answered = useRef(false);
+  const wrongQuestionsRef = useRef<Map<string, Question>>(new Map());
 
   const totalUnitQuestions = unitQuestions.length;
   const completedCount = totalUnitQuestions - remaining.size;
@@ -86,7 +87,7 @@ export default function PracticeMode({ student, unit, step, onComplete, onBack }
           ...student,
           questionStats: { ...statsRef.current },
         };
-        onComplete(accuracy, updatedStudent);
+        onComplete(accuracy, updatedStudent, Array.from(wrongQuestionsRef.current.values()));
       } else {
         loadNext();
       }
@@ -95,6 +96,7 @@ export default function PracticeMode({ student, unit, step, onComplete, onBack }
 
   const finishIncorrect = () => {
     if (!current) return;
+    wrongQuestionsRef.current.set(current.id, current);
     setFeedback('incorrect');
     setShowAnswer(true);
     setTimeout(() => {
@@ -129,6 +131,7 @@ export default function PracticeMode({ student, unit, step, onComplete, onBack }
 
   const handleWordOrderWrong = () => {
     if (!current) return;
+    wrongQuestionsRef.current.set(current.id, current);
     recordAttempt(false);
     updateStats(current.id, false);
   };

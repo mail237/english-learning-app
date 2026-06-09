@@ -9,9 +9,10 @@ import {
 interface Props {
   result: FullTestResult;
   onFinish: () => void;
+  onReview?: () => void;
 }
 
-export default function TestResults({ result, onFinish }: Props) {
+export default function TestResults({ result, onFinish, onReview }: Props) {
   const {
     testCorrect,
     testTotal,
@@ -84,6 +85,12 @@ export default function TestResults({ result, onFinish }: Props) {
             ))}
           </div>
         </div>
+      )}
+
+      {wrongTestAnswers.length > 0 && onReview && (
+        <button className="btn btn-secondary btn-large" onClick={onReview}>
+          間違えた問題をもう一度（{wrongTestAnswers.length}問）
+        </button>
       )}
 
       <button className="btn btn-primary btn-large" onClick={onFinish}>

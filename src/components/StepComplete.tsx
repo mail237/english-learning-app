@@ -3,11 +3,19 @@ import { formatStageLabel } from '../utils/unitProgress';
 
 interface Props {
   completedStep: number;
+  wrongCount?: number;
   onContinue: () => void;
+  onReview?: () => void;
   onBack: () => void;
 }
 
-export default function StepComplete({ completedStep, onContinue, onBack }: Props) {
+export default function StepComplete({
+  completedStep,
+  wrongCount = 0,
+  onContinue,
+  onReview,
+  onBack,
+}: Props) {
   const nextStep = completedStep + 1;
 
   return (
@@ -21,6 +29,12 @@ export default function StepComplete({ completedStep, onContinue, onBack }: Prop
             : 'すべてのステージをクリアしたよ'}
         </p>
       </div>
+
+      {wrongCount > 0 && onReview && (
+        <button className="btn btn-secondary btn-large" onClick={onReview}>
+          間違えた問題を復習する（{wrongCount}問）
+        </button>
+      )}
 
       <button className="btn btn-primary btn-large" onClick={onContinue}>
         {formatStageLabel(nextStep)} をはじめる
