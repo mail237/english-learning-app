@@ -2,7 +2,8 @@
   "name": "英語学習アプリ",
   "short_name": "英語学習",
   "description": "中学生向け英語基礎学習アプリ",
-  "start_url": "/",
+  "start_url": "/english-learning-app/",
+  "scope": "/english-learning-app/",
   "display": "standalone",
   "background_color": "#f0f4f8",
   "theme_color": "#4a90d9",
@@ -10,7 +11,7 @@
   "lang": "ja",
   "icons": [
     {
-      "src": "/apple-touch-icon.svg",
+      "src": "/english-learning-app/apple-touch-icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
