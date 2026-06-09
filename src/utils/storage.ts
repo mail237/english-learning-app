@@ -12,7 +12,7 @@ const SETTINGS_KEY = 'english-app-settings';
 const SESSIONS_KEY = 'english-app-sessions';
 
 const DEFAULT_SETTINGS: AppSettings = {
-  teacherPassword: 'teacher123',
+  teacherPassword: '1987',
 };
 
 function defaultUnitProgress(): Record<number, UnitProgress> {
