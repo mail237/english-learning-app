@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { WordOrderQuestion, Feedback, QuestionMode } from '../../types';
 import {
+  maybeAutoAppendQuestionMark,
   prepareWordOrderQuestion,
   shuffleArray,
+  wordOrderAnswerWithoutPunctuation,
   wordsMatchWordOrderAnswer,
 } from '../../utils/questionHelpers';
 
@@ -15,6 +17,7 @@ interface Props {
   onCorrect: () => void;
   onWrong: (attempt?: string[]) => void;
   onReplay: () => void;
+  onSkip?: () => void;
 }
 
 export default function WordOrderView({
@@ -26,60 +29,107 @@ export default function WordOrderView({
   onCorrect,
   onWrong,
   onReplay,
+  onSkip,
 }: Props) {
   const { words: wordBank, answer: expectedAnswer } = useMemo(
     () => prepareWordOrderQuestion(question),
     [question.id, question.words, question.answer, question.sentence],
   );
+  const needsQuestionMark = expectedAnswer.includes('?');
+  const coreAnswer = useMemo(
+    () => wordOrderAnswerWithoutPunctuation(expectedAnswer),
+    [expectedAnswer],
+  );
+
   const [available, setAvailable] = useState<string[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [localFeedback, setLocalFeedback] = useState<Feedback>('none');
+  const [checking, setChecking] = useState(false);
 
   const resetBoard = () => {
     setAvailable(shuffleArray(wordBank));
     setSelected([]);
     setLocalFeedback('none');
+    setChecking(false);
   };
 
   useEffect(() => {
-    setAvailable(shuffleArray(wordBank));
-    setSelected([]);
-    setLocalFeedback('none');
+    resetBoard();
   }, [question.id, wordBank]);
 
-  const handleWordTap = (word: string, index: number) => {
-    if (disabled || feedback !== 'none' || localFeedback !== 'none') return;
+  const displayFeedback = feedback !== 'none' ? feedback : localFeedback;
+  const isLocked = disabled || displayFeedback !== 'none' || checking;
+  const remaining = expectedAnswer.length - selected.length;
 
-    const newSelected = [...selected, word];
-    const newAvailable = available.filter((_, i) => i !== index);
+  const finalizeAnswer = (attempt: string[]) => {
+    const isCorrect = wordsMatchWordOrderAnswer(attempt, expectedAnswer);
+    if (isCorrect) {
+      setLocalFeedback('correct');
+      onCorrect();
+    } else if (mode === 'practice') {
+      setLocalFeedback('incorrect');
+      onWrong();
+      setTimeout(() => {
+        resetBoard();
+      }, 1200);
+    } else {
+      setLocalFeedback('incorrect');
+      onWrong(attempt);
+    }
+    setChecking(false);
+  };
+
+  const trySubmit = (attempt: string[]) => {
+    if (isLocked) return;
+
+    let finalAttempt = attempt;
+    if (needsQuestionMark && !finalAttempt.includes('?')) {
+      const auto = maybeAutoAppendQuestionMark(finalAttempt, [], expectedAnswer);
+      finalAttempt = auto.selected;
+    }
+
+    if (finalAttempt.length < expectedAnswer.length) return;
+
+    setChecking(true);
+    finalizeAnswer(finalAttempt);
+  };
+
+  const handleWordTap = (word: string, index: number) => {
+    if (isLocked) return;
+
+    let newSelected = [...selected, word];
+    let newAvailable = available.filter((_, i) => i !== index);
+    const auto = maybeAutoAppendQuestionMark(newSelected, newAvailable, expectedAnswer);
+    newSelected = auto.selected;
+    newAvailable = auto.available;
+
     setSelected(newSelected);
     setAvailable(newAvailable);
 
     if (newSelected.length === expectedAnswer.length) {
-      const isCorrect = wordsMatchWordOrderAnswer(newSelected, expectedAnswer);
-      if (isCorrect) {
-        setLocalFeedback('correct');
-        onCorrect();
-      } else if (mode === 'practice') {
-        setLocalFeedback('incorrect');
-        onWrong();
-        setTimeout(resetBoard, 1200);
-      } else {
-        setLocalFeedback('incorrect');
-        onWrong(newSelected);
-      }
+      trySubmit(newSelected);
     }
   };
 
   const handleRemoveWord = (wordIndex: number) => {
-    if (disabled || feedback !== 'none' || localFeedback !== 'none') return;
+    if (isLocked) return;
     const word = selected[wordIndex];
     const newSelected = selected.filter((_, i) => i !== wordIndex);
     setSelected(newSelected);
     setAvailable([...available, word]);
   };
 
-  const displayFeedback = feedback !== 'none' ? feedback : localFeedback;
+  const handleSubmit = () => {
+    trySubmit(selected);
+  };
+
+  const canSubmit =
+    !isLocked &&
+    (selected.length === expectedAnswer.length ||
+      (needsQuestionMark &&
+        selected.length === coreAnswer.length &&
+        wordsMatchWordOrderAnswer(selected, coreAnswer)));
+
   const revealSentence = showAnswer || displayFeedback === 'correct';
 
   return (
@@ -102,6 +152,13 @@ export default function WordOrderView({
 
       <p className="question-text">{question.question}</p>
 
+      {remaining > 0 && displayFeedback === 'none' && (
+        <p className="word-order-remaining">
+          あと <strong>{remaining}</strong> つ
+          {needsQuestionMark && remaining === 1 && '（? も忘れずに）'}
+        </p>
+      )}
+
       <div className="word-order-area">
         <div className="word-order-slot">
           {selected.length === 0 ? (
@@ -112,7 +169,7 @@ export default function WordOrderView({
                 key={`${word}-${i}`}
                 className={`btn word-chip word-chip-selected${word === '?' ? ' word-chip-punct' : ''}`}
                 onClick={() => handleRemoveWord(i)}
-                disabled={disabled || displayFeedback !== 'none'}
+                disabled={isLocked}
               >
                 {word}
               </button>
@@ -120,16 +177,27 @@ export default function WordOrderView({
           )}
         </div>
 
-        {selected.length > 0 && localFeedback === 'none' && feedback === 'none' && (
-          <button
-            type="button"
-            className="btn btn-text word-order-reset"
-            onClick={resetBoard}
-            disabled={disabled}
-          >
-            やり直す
-          </button>
-        )}
+        <div className="word-order-actions">
+          {selected.length > 0 && displayFeedback === 'none' && (
+            <button
+              type="button"
+              className="btn btn-text word-order-reset"
+              onClick={resetBoard}
+              disabled={isLocked}
+            >
+              やり直す
+            </button>
+          )}
+          {canSubmit && (
+            <button
+              type="button"
+              className="btn btn-primary word-order-submit"
+              onClick={handleSubmit}
+            >
+              できた！
+            </button>
+          )}
+        </div>
 
         <div className="word-order-bank">
           {available.map((word, i) => (
@@ -137,7 +205,7 @@ export default function WordOrderView({
               key={`${word}-${i}`}
               className={`btn word-chip${word === '?' ? ' word-chip-punct' : ''}`}
               onClick={() => handleWordTap(word, i)}
-              disabled={disabled || displayFeedback !== 'none'}
+              disabled={isLocked}
             >
               {word}
             </button>
@@ -158,6 +226,12 @@ export default function WordOrderView({
         <div className="feedback incorrect">
           {mode === 'practice' ? '順番が違うよ。もう一度！' : '不正解'}
         </div>
+      )}
+
+      {mode === 'practice' && onSkip && displayFeedback === 'none' && (
+        <button type="button" className="btn btn-text word-order-skip" onClick={onSkip}>
+          わからない（答えを見て次へ）
+        </button>
       )}
     </>
   );

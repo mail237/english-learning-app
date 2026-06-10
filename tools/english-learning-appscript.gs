@@ -16,6 +16,12 @@ const DEFAULT_STUDENTS = [
   "中西 奏羽", "伊藤 かほ", "古園井 千晶", "吉田 しゅん", "大塚 五十楽", "岡 彩乃", "岡田 命絆", "林田 朝香", "芦谷 天眞", "酒井 紫えん", "野田 柚花"
 ];
 
+function setup() {
+  ensureSheets_();
+  syncStudents_();
+  return "ok";
+}
+
 function doOptions(e) {
   return jsonOut_({ ok: true }, e);
 }
@@ -40,6 +46,11 @@ function doGet(e) {
 
   if (action === "ping") {
     return jsonOut_({ ok: true, message: "pong" }, e);
+  }
+
+  if (action === "resetStudents") {
+    syncStudents_();
+    return jsonOut_({ ok: true, students: listStudents_() }, e);
   }
 
   return jsonOut_({ ok: false, error: "bad_request" }, e);
@@ -87,6 +98,22 @@ function allow_(secret) {
 function spreadsheet_() {
   if (SPREADSHEET_ID) return SpreadsheetApp.openById(SPREADSHEET_ID);
   return SpreadsheetApp.getActiveSpreadsheet();
+}
+
+function syncStudents_() {
+  const ss = spreadsheet_();
+  let sh = ss.getSheetByName(SHEET_STUDENTS);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_STUDENTS);
+    sh.appendRow(["名前", "有効"]);
+  }
+  const lastRow = sh.getLastRow();
+  if (lastRow > 1) {
+    sh.getRange(2, 1, lastRow - 1, 2).clearContent();
+  }
+  DEFAULT_STUDENTS.forEach(function (name) {
+    sh.appendRow([name, true]);
+  });
 }
 
 function ensureSheets_() {

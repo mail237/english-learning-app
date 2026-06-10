@@ -46,6 +46,40 @@ export function wordsMatchWordOrderAnswer(selected: string[], expected: string[]
   return selected.every((w, i) => normalizeWordOrderToken(w) === normalizeWordOrderToken(expected[i]));
 }
 
+export function wordOrderAnswerWithoutPunctuation(answer: string[]): string[] {
+  return answer.filter((t) => t !== '?');
+}
+
+/** 疑問文：単語が揃ったら ? を自動で付ける */
+export function maybeAutoAppendQuestionMark(
+  selected: string[],
+  available: string[],
+  expectedAnswer: string[],
+): { selected: string[]; available: string[] } {
+  if (!expectedAnswer.includes('?')) {
+    return { selected, available };
+  }
+
+  const core = wordOrderAnswerWithoutPunctuation(expectedAnswer);
+  if (selected.length !== core.length || !wordsMatchWordOrderAnswer(selected, core)) {
+    return { selected, available };
+  }
+
+  if (selected.includes('?')) {
+    return { selected, available };
+  }
+
+  const qIndex = available.indexOf('?');
+  if (qIndex >= 0) {
+    return {
+      selected: [...selected, '?'],
+      available: available.filter((_, i) => i !== qIndex),
+    };
+  }
+
+  return { selected: [...selected, '?'], available };
+}
+
 export function shouldAutoSpeak(question: Question): boolean {
   return question.type !== 'listening' && question.type !== 'jp-to-en';
 }

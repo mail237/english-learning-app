@@ -731,13 +731,44 @@ body {
 .word-chip-punct {
   min-width: 52px;
   font-size: 28px;
+  font-weight: 700;
   line-height: 1;
   padding: 10px 16px;
+  border: 2px solid var(--color-primary);
+  background: #e8f4ff;
+}
+
+.word-order-remaining {
+  text-align: center;
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  margin: -8px 0 0;
+}
+
+.word-order-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
 .word-order-reset {
+  margin: 0;
+}
+
+.word-order-submit {
+  min-width: 140px;
+}
+
+.word-order-skip {
   display: block;
-  margin: 0 auto 8px;
+  width: 100%;
+  text-align: center;
+  margin-top: 8px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
 }
 
 .checkpoint-skip {

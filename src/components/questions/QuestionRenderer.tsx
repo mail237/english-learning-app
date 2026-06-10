@@ -19,6 +19,7 @@ interface Props {
   onSelectIndex: (index: number) => void;
   onWordOrderCorrect: () => void;
   onWordOrderWrong: (attempt?: string[]) => void;
+  onWordOrderSkip?: () => void;
   onReplay: () => void;
   showTypeBadge?: boolean;
   showVocabHint?: boolean;
@@ -34,6 +35,7 @@ export default function QuestionRenderer({
   onSelectIndex,
   onWordOrderCorrect,
   onWordOrderWrong,
+  onWordOrderSkip,
   onReplay,
   showTypeBadge = false,
   showVocabHint = false,
@@ -72,6 +74,7 @@ export default function QuestionRenderer({
           disabled={disabled}
           onCorrect={onWordOrderCorrect}
           onWrong={onWordOrderWrong}
+          onSkip={onWordOrderSkip}
           onReplay={onReplay}
         />
       )}

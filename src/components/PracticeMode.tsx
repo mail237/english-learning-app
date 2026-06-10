@@ -208,6 +208,16 @@ export default function PracticeMode({ student, unit, step, onComplete, onBack }
     updateStats(current.id, false);
   };
 
+  const handleWordOrderSkip = () => {
+    if (!current || answered.current) return;
+    answered.current = true;
+    absorbVocab(current);
+    wrongQuestionsRef.current.set(current.id, current);
+    recordAttempt(false);
+    updateStats(current.id, false);
+    finishIncorrect();
+  };
+
   const handleReplay = () => {
     if (!current) return;
     const text = getSpeechText(current);
@@ -271,6 +281,7 @@ export default function PracticeMode({ student, unit, step, onComplete, onBack }
         onSelectIndex={handleSelectIndex}
         onWordOrderCorrect={handleWordOrderCorrect}
         onWordOrderWrong={handleWordOrderWrong}
+        onWordOrderSkip={handleWordOrderSkip}
         onReplay={handleReplay}
         showTypeBadge
         showVocabHint
