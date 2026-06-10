@@ -1,24 +1,35 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { Feedback, Question, QuestionStats, StudentData } from '../types';
+import type { Feedback, Question, QuestionStats, StudentData, VocabEntry, VocabTestItem } from '../types';
+import { VOCAB_CHECKPOINT_INTERVAL } from '../data/constants';
 import { getQuestionsByUnitAndStep } from '../data/questions';
+import { getVocabForQuestion } from '../data/vocab';
 import { formatStageLabel } from '../utils/unitProgress';
 import { speakSentence, stopSpeech } from '../utils/speech';
 import { buildPracticePool, pickNextQuestion } from '../utils/spiral';
 import { getSpeechText, shouldAutoSpeak } from '../utils/questionHelpers';
+import { buildCheckpointItem, mergeVocabEntries } from '../utils/vocabTest';
 import QuestionRenderer from './questions/QuestionRenderer';
+import VocabCheckpoint from './VocabCheckpoint';
 
 interface Props {
   student: StudentData;
   unit: number;
   step: number;
-  onComplete: (accuracy: number, updatedStudent: StudentData, wrongQuestions: Question[]) => void;
+  onComplete: (
+    accuracy: number,
+    updatedStudent: StudentData,
+    wrongQuestions: Question[],
+    sessionVocab: VocabEntry[],
+  ) => void;
   onBack: () => void;
 }
 
 export default function PracticeMode({ student, unit, step, onComplete, onBack }: Props) {
   const unitQuestions = getQuestionsByUnitAndStep(unit, step);
   const pool = useRef(buildPracticePool(unit, step)).current;
-  const [remaining, setRemaining] = useState(() => new Set(unitQuestions.map((q) => q.id)));
+  const initialRemaining = useRef(new Set(unitQuestions.map((q) => q.id)));
+  const remainingRef = useRef(initialRemaining.current);
+  const [remaining, setRemaining] = useState(() => new Set(initialRemaining.current));
   const [current, setCurrent] = useState<Question | null>(null);
   const [feedback, setFeedback] = useState<Feedback>('none');
   const statsRef = useRef<Record<string, QuestionStats>>({ ...student.questionStats });
@@ -28,23 +39,88 @@ export default function PracticeMode({ student, unit, step, onComplete, onBack }
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const answered = useRef(false);
   const wrongQuestionsRef = useRef<Map<string, Question>>(new Map());
+  const sessionVocabRef = useRef<VocabEntry[]>([]);
+  const [sessionVocabCount, setSessionVocabCount] = useState(0);
+  const questionsSinceCheckpoint = useRef(0);
+  const [checkpoint, setCheckpoint] = useState<VocabTestItem | null>(null);
+  const studentRef = useRef(student);
+  const onCompleteRef = useRef(onComplete);
+
+  studentRef.current = student;
+  onCompleteRef.current = onComplete;
 
   const totalUnitQuestions = unitQuestions.length;
   const completedCount = totalUnitQuestions - remaining.size;
 
+  const syncRemaining = (next: Set<string>) => {
+    remainingRef.current = next;
+    setRemaining(next);
+  };
+
+  const absorbVocab = (question: Question) => {
+    const vocab = getVocabForQuestion(question.id, question.vocab);
+    sessionVocabRef.current = mergeVocabEntries(sessionVocabRef.current, vocab);
+    setSessionVocabCount(sessionVocabRef.current.length);
+  };
+
+  const completeStage = useCallback(() => {
+    const { correct, total } = sessionStatsRef.current;
+    const accuracy = Math.round((correct / Math.max(total, 1)) * 100);
+    const updatedStudent: StudentData = {
+      ...studentRef.current,
+      questionStats: { ...statsRef.current },
+    };
+    onCompleteRef.current(
+      accuracy,
+      updatedStudent,
+      Array.from(wrongQuestionsRef.current.values()),
+      sessionVocabRef.current,
+    );
+  }, []);
+
   const loadNext = useCallback(() => {
-    const next = pickNextQuestion(pool, remaining, statsRef.current);
+    const rem = remainingRef.current;
+    if (rem.size === 0) {
+      completeStage();
+      return;
+    }
+
+    const next = pickNextQuestion(pool, rem, statsRef.current);
+    if (!next) {
+      completeStage();
+      return;
+    }
+
     setCurrent(next);
     setFeedback('none');
     setShowAnswer(false);
     setSelectedIndex(null);
     answered.current = false;
-  }, [pool, remaining]);
+  }, [pool, completeStage]);
+
+  const maybeShowCheckpoint = useCallback(
+    (onSkip: () => void) => {
+      questionsSinceCheckpoint.current += 1;
+      if (
+        questionsSinceCheckpoint.current >= VOCAB_CHECKPOINT_INTERVAL &&
+        sessionVocabRef.current.length >= 3
+      ) {
+        const item = buildCheckpointItem(sessionVocabRef.current);
+        if (item) {
+          questionsSinceCheckpoint.current = 0;
+          setCheckpoint(item);
+          return;
+        }
+      }
+      onSkip();
+    },
+    [],
+  );
 
   useEffect(() => {
     loadNext();
     return () => stopSpeech();
-  }, []);
+  }, [loadNext]);
 
   useEffect(() => {
     if (current && shouldAutoSpeak(current)) {
@@ -74,33 +150,29 @@ export default function PracticeMode({ student, unit, step, onComplete, onBack }
 
   const finishCorrect = () => {
     if (!current) return;
+    absorbVocab(current);
     setFeedback('correct');
-    const newRemaining = new Set(remaining);
+    const newRemaining = new Set(remainingRef.current);
     newRemaining.delete(current.id);
-    setRemaining(newRemaining);
+    syncRemaining(newRemaining);
 
     setTimeout(() => {
       if (newRemaining.size === 0) {
-        const { correct, total } = sessionStatsRef.current;
-        const accuracy = Math.round((correct / Math.max(total, 1)) * 100);
-        const updatedStudent: StudentData = {
-          ...student,
-          questionStats: { ...statsRef.current },
-        };
-        onComplete(accuracy, updatedStudent, Array.from(wrongQuestionsRef.current.values()));
+        completeStage();
       } else {
-        loadNext();
+        maybeShowCheckpoint(loadNext);
       }
     }, 800);
   };
 
   const finishIncorrect = () => {
     if (!current) return;
+    absorbVocab(current);
     wrongQuestionsRef.current.set(current.id, current);
     setFeedback('incorrect');
     setShowAnswer(true);
     setTimeout(() => {
-      loadNext();
+      maybeShowCheckpoint(loadNext);
     }, 1500);
   };
 
@@ -142,10 +214,28 @@ export default function PracticeMode({ student, unit, step, onComplete, onBack }
     if (text) speakSentence(text);
   };
 
+  if (checkpoint) {
+    return (
+      <VocabCheckpoint
+        item={checkpoint}
+        onDone={() => {
+          setCheckpoint(null);
+          loadNext();
+        }}
+      />
+    );
+  }
+
   if (!current) {
     return (
       <div className="screen">
         <p>問題を読み込み中...</p>
+        <button className="btn btn-secondary" onClick={loadNext}>
+          つぎの問題へ
+        </button>
+        <button className="btn btn-text" onClick={onBack}>
+          単元選択にもどる
+        </button>
       </div>
     );
   }
@@ -159,6 +249,9 @@ export default function PracticeMode({ student, unit, step, onComplete, onBack }
         <div className="progress-info">
           <span className="stage-badge">{formatStageLabel(step)}</span>
           あと <strong>{remaining.size}</strong> 問
+          {sessionVocabCount > 0 && (
+            <span className="vocab-session-count">単語 {sessionVocabCount}</span>
+          )}
           <span className="progress-bar-wrap">
             <span
               className="progress-bar"
@@ -180,6 +273,7 @@ export default function PracticeMode({ student, unit, step, onComplete, onBack }
         onWordOrderWrong={handleWordOrderWrong}
         onReplay={handleReplay}
         showTypeBadge
+        showVocabHint
       />
     </div>
   );

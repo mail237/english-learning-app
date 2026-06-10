@@ -48,22 +48,23 @@ export default function ReviewMode({ questions, student, onComplete, onBack }: P
   const advance = (isCorrect: boolean) => {
     if (!current) return;
     updateStats(current.id, isCorrect);
-    const nextCorrect = correctCount + (isCorrect ? 1 : 0);
-    setCorrectCount(nextCorrect);
+    setCorrectCount((prev) => prev + (isCorrect ? 1 : 0));
 
     setTimeout(() => {
-      if (currentIndex + 1 >= questions.length) {
-        setFinished(true);
-        setUpdatedStudent(
-          student ? { ...student, questionStats: { ...statsRef.current } } : null,
-        );
-      } else {
-        setCurrentIndex((i) => i + 1);
-        setFeedback('none');
-        setShowAnswer(false);
-        setSelectedIndex(null);
-        setLocked(false);
-      }
+      setCurrentIndex((idx) => {
+        if (idx + 1 >= questions.length) {
+          setFinished(true);
+          setUpdatedStudent(
+            student ? { ...student, questionStats: { ...statsRef.current } } : null,
+          );
+          return idx;
+        }
+        return idx + 1;
+      });
+      setFeedback('none');
+      setShowAnswer(false);
+      setSelectedIndex(null);
+      setLocked(false);
     }, isCorrect ? 800 : 1500);
   };
 
@@ -156,6 +157,7 @@ export default function ReviewMode({ questions, student, onComplete, onBack }: P
         onWordOrderWrong={handleWordOrderWrong}
         onReplay={handleReplay}
         showTypeBadge
+        showVocabHint
       />
     </div>
   );

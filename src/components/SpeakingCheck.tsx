@@ -5,11 +5,13 @@ import { buildSpeakingItems } from '../utils/vocabTest';
 
 interface Props {
   testQuestions: Question[];
+  unit: number;
   onComplete: (results: SpeakingResult[], accuracy: number) => void;
+  onDefer: () => void;
 }
 
-export default function SpeakingCheck({ testQuestions, onComplete }: Props) {
-  const [items] = useState(() => buildSpeakingItems(testQuestions));
+export default function SpeakingCheck({ testQuestions, unit, onComplete, onDefer }: Props) {
+  const [items] = useState(() => buildSpeakingItems(testQuestions, unit));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [results, setResults] = useState<SpeakingResult[]>([]);
   const [locked, setLocked] = useState(false);
@@ -109,6 +111,11 @@ export default function SpeakingCheck({ testQuestions, onComplete }: Props) {
           ×
         </button>
       </div>
+
+      <button className="btn btn-secondary btn-large speaking-defer-btn" onClick={onDefer}>
+        あとでまとめてやる
+      </button>
+      <p className="speaking-defer-note">時間がないときは単元選択からまとめてできます</p>
     </div>
   );
 }

@@ -1,7 +1,23 @@
 import { useState } from 'react';
-import type { FullTestResult, Question, Screen, StudentData, TestAnswer } from './types';
+import type {
+  FullTestResult,
+  PendingSpeakingBatch,
+  Question,
+  Screen,
+  SpeakingResult,
+  StudentData,
+  TestAnswer,
+  VocabEntry,
+} from './types';
 import { loadStudent, saveSession, saveStudent } from './utils/storage';
-import { calcOverallScore } from './utils/vocabTest';
+import {
+  addPendingBatch,
+  createPendingBatchId,
+  getPendingBatches,
+  removePendingBatches,
+  summarizeBatchResults,
+} from './utils/pendingSpeaking';
+import { buildSpeakingItems, calcOverallScore } from './utils/vocabTest';
 import StartScreen from './components/StartScreen';
 import UnitSelection from './components/UnitSelection';
 import PracticeMode from './components/PracticeMode';
@@ -12,6 +28,7 @@ import { getActiveStep, isAllPracticeDone } from './utils/unitProgress';
 import TestMode from './components/TestMode';
 import VocabTestMode from './components/VocabTestMode';
 import SpeakingCheck from './components/SpeakingCheck';
+import SpeakingBatchMode from './components/SpeakingBatchMode';
 import TestResults from './components/TestResults';
 import ReviewMode from './components/ReviewMode';
 import { questionsFromWrongAnswers, uniqueQuestions } from './utils/review';
@@ -29,6 +46,7 @@ function App() {
   const [reviewQuestions, setReviewQuestions] = useState<Question[]>([]);
   const [returnScreen, setReturnScreen] = useState<Screen>('testResults');
   const [sessionWrongQuestions, setSessionWrongQuestions] = useState<Question[]>([]);
+  const [sessionVocab, setSessionVocab] = useState<VocabEntry[]>([]);
 
   const handleStart = async (name: string) => {
     const data = await loadStudent(name);
@@ -72,8 +90,10 @@ function App() {
     accuracy: number,
     updatedStudent: StudentData,
     wrongQuestions: Question[],
+    vocab: VocabEntry[],
   ) => {
     setSessionWrongQuestions(uniqueQuestions(wrongQuestions));
+    setSessionVocab(vocab);
     const prev = updatedStudent.unitProgress[currentUnit];
     const newCompletedStep = currentStep;
     const allDone = newCompletedStep >= STEPS_PER_UNIT;
@@ -144,14 +164,20 @@ function App() {
     setScreen('speakingCheck');
   };
 
-  const handleSpeakingComplete = (results: { passed: boolean }[], accuracy: number) => {
+  const finalizeTestWithSpeaking = (
+    speakingResults: SpeakingResult[],
+    accuracy: number,
+    pending: boolean,
+  ) => {
     if (!student || !fullResult) return;
 
-    const speakingPassed = results.filter((r) => r.passed).length;
-    const speakingTotal = results.length;
+    const speakingPassed = speakingResults.filter((r) => r.passed).length;
+    const speakingTotal = speakingResults.length;
     const vocabAcc = fullResult.vocabTotal === 0 ? fullResult.testAccuracy : fullResult.vocabAccuracy;
     const speakAcc = speakingTotal === 0 ? fullResult.testAccuracy : accuracy;
-    const overallScore = calcOverallScore(fullResult.testAccuracy, vocabAcc, speakAcc);
+    const overallScore = pending
+      ? Math.round((fullResult.testAccuracy + vocabAcc) / 2)
+      : calcOverallScore(fullResult.testAccuracy, vocabAcc, speakAcc);
 
     const result: FullTestResult = {
       ...fullResult,
@@ -159,6 +185,7 @@ function App() {
       speakingTotal,
       speakingAccuracy: speakAcc,
       overallScore,
+      speakingPending: pending,
     };
 
     setFullResult(result);
@@ -178,24 +205,120 @@ function App() {
     setStudent(updated);
     saveStudent(updated);
 
-    saveSession({
-      studentName: student.name,
-      unit: currentUnit,
-      practiceAccuracy: student.unitProgress[currentUnit]?.practiceAccuracy ?? practiceAccuracy,
-      testCorrect: result.testCorrect,
-      testTotal: result.testTotal,
-      testAccuracy: result.testAccuracy,
-      vocabCorrect: result.vocabCorrect,
-      vocabTotal: result.vocabTotal,
-      vocabAccuracy: result.vocabAccuracy,
-      speakingPassed: result.speakingPassed,
-      speakingTotal: result.speakingTotal,
-      speakingAccuracy: result.speakingAccuracy,
-      overallScore: result.overallScore,
-      date: new Date().toISOString(),
-    });
+    if (!pending) {
+      saveSession({
+        studentName: student.name,
+        unit: currentUnit,
+        practiceAccuracy: student.unitProgress[currentUnit]?.practiceAccuracy ?? practiceAccuracy,
+        testCorrect: result.testCorrect,
+        testTotal: result.testTotal,
+        testAccuracy: result.testAccuracy,
+        vocabCorrect: result.vocabCorrect,
+        vocabTotal: result.vocabTotal,
+        vocabAccuracy: result.vocabAccuracy,
+        speakingPassed: result.speakingPassed,
+        speakingTotal: result.speakingTotal,
+        speakingAccuracy: result.speakingAccuracy,
+        overallScore: result.overallScore,
+        date: new Date().toISOString(),
+      });
+    }
 
     setScreen('testResults');
+  };
+
+  const handleSpeakingComplete = (results: SpeakingResult[], accuracy: number) => {
+    finalizeTestWithSpeaking(results, accuracy, false);
+  };
+
+  const handleSpeakingDefer = () => {
+    if (!student || !fullResult) return;
+
+    const items = buildSpeakingItems(testQuestions, currentUnit);
+    if (items.length === 0) {
+      finalizeTestWithSpeaking([], 100, false);
+      return;
+    }
+
+    const batch: PendingSpeakingBatch = {
+      id: createPendingBatchId(),
+      unit: currentUnit,
+      items,
+      savedAt: new Date().toISOString(),
+      testCorrect: fullResult.testCorrect,
+      testTotal: fullResult.testTotal,
+      testAccuracy: fullResult.testAccuracy,
+      vocabCorrect: fullResult.vocabCorrect,
+      vocabTotal: fullResult.vocabTotal,
+      vocabAccuracy: fullResult.vocabAccuracy,
+      practiceAccuracy: student.unitProgress[currentUnit]?.practiceAccuracy ?? practiceAccuracy,
+    };
+
+    const updated = addPendingBatch(
+      {
+        ...student,
+        unitProgress: {
+          ...student.unitProgress,
+          [currentUnit]: {
+            status: 'テスト済',
+            practiceAccuracy: batch.practiceAccuracy,
+            testAccuracy: fullResult.testAccuracy,
+            testDate: new Date().toISOString(),
+          },
+        },
+      },
+      batch,
+    );
+    setStudent(updated);
+    saveStudent(updated);
+
+    const vocabAcc =
+      fullResult.vocabTotal === 0 ? fullResult.testAccuracy : fullResult.vocabAccuracy;
+    setFullResult({
+      ...fullResult,
+      speakingPassed: 0,
+      speakingTotal: items.length,
+      speakingAccuracy: 0,
+      overallScore: Math.round((fullResult.testAccuracy + vocabAcc) / 2),
+      speakingPending: true,
+    });
+    setScreen('testResults');
+  };
+
+  const handleSpeakingBatchComplete = (resultsByBatchId: Record<string, SpeakingResult[]>) => {
+    if (!student) return;
+
+    const batches = getPendingBatches(student);
+    for (const batch of batches) {
+      const results = resultsByBatchId[batch.id] ?? [];
+      if (results.length === 0) continue;
+
+      const summary = summarizeBatchResults(batch, results);
+      saveSession({
+        studentName: student.name,
+        unit: batch.unit,
+        practiceAccuracy: batch.practiceAccuracy ?? 0,
+        testCorrect: batch.testCorrect,
+        testTotal: batch.testTotal,
+        testAccuracy: batch.testAccuracy,
+        vocabCorrect: batch.vocabCorrect,
+        vocabTotal: batch.vocabTotal,
+        vocabAccuracy: batch.vocabAccuracy,
+        speakingPassed: summary.speakingPassed,
+        speakingTotal: summary.speakingTotal,
+        speakingAccuracy: summary.speakingAccuracy,
+        overallScore: summary.overallScore,
+        date: new Date().toISOString(),
+      });
+    }
+
+    const updated = removePendingBatches(
+      student,
+      batches.map((b) => b.id),
+    );
+    setStudent(updated);
+    saveStudent(updated);
+    setScreen('units');
   };
 
   const handleFinish = () => {
@@ -232,6 +355,7 @@ function App() {
         <UnitSelection
           student={student}
           onSelectUnit={handleSelectUnit}
+          onStartSpeakingBatch={() => setScreen('speakingBatch')}
           onBack={handleFinish}
         />
       )}
@@ -250,6 +374,7 @@ function App() {
         <StepComplete
           completedStep={completedStep}
           wrongCount={sessionWrongQuestions.length}
+          sessionVocab={sessionVocab}
           onContinue={handleStepContinue}
           onReview={() => startReview(sessionWrongQuestions, 'stepComplete')}
           onBack={handleBackToUnits}
@@ -272,6 +397,7 @@ function App() {
       {screen === 'vocabTest' && (
         <VocabTestMode
           testQuestions={testQuestions}
+          unit={currentUnit}
           onComplete={handleVocabComplete}
         />
       )}
@@ -279,7 +405,17 @@ function App() {
       {screen === 'speakingCheck' && (
         <SpeakingCheck
           testQuestions={testQuestions}
+          unit={currentUnit}
           onComplete={handleSpeakingComplete}
+          onDefer={handleSpeakingDefer}
+        />
+      )}
+
+      {screen === 'speakingBatch' && student && (
+        <SpeakingBatchMode
+          batches={getPendingBatches(student)}
+          onComplete={handleSpeakingBatchComplete}
+          onBack={handleBackToUnits}
         />
       )}
 

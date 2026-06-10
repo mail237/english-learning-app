@@ -29,11 +29,17 @@ export default function WordOrderView({
 }: Props) {
   const { words: wordBank, answer: expectedAnswer } = useMemo(
     () => prepareWordOrderQuestion(question),
-    [question],
+    [question.id, question.words, question.answer, question.sentence],
   );
   const [available, setAvailable] = useState<string[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [localFeedback, setLocalFeedback] = useState<Feedback>('none');
+
+  const resetBoard = () => {
+    setAvailable(shuffleArray(wordBank));
+    setSelected([]);
+    setLocalFeedback('none');
+  };
 
   useEffect(() => {
     setAvailable(shuffleArray(wordBank));
@@ -57,11 +63,7 @@ export default function WordOrderView({
       } else if (mode === 'practice') {
         setLocalFeedback('incorrect');
         onWrong();
-        setTimeout(() => {
-          setSelected([]);
-          setAvailable(shuffleArray(wordBank));
-          setLocalFeedback('none');
-        }, 1200);
+        setTimeout(resetBoard, 1200);
       } else {
         setLocalFeedback('incorrect');
         onWrong(newSelected);
@@ -117,6 +119,17 @@ export default function WordOrderView({
             ))
           )}
         </div>
+
+        {selected.length > 0 && localFeedback === 'none' && feedback === 'none' && (
+          <button
+            type="button"
+            className="btn btn-text word-order-reset"
+            onClick={resetBoard}
+            disabled={disabled}
+          >
+            やり直す
+          </button>
+        )}
 
         <div className="word-order-bank">
           {available.map((word, i) => (

@@ -5,11 +5,12 @@ import { buildVocabTestItems } from '../utils/vocabTest';
 
 interface Props {
   testQuestions: Question[];
+  unit: number;
   onComplete: (answers: VocabTestAnswer[], accuracy: number) => void;
 }
 
-export default function VocabTestMode({ testQuestions, onComplete }: Props) {
-  const [items] = useState<VocabTestItem[]>(() => buildVocabTestItems(testQuestions));
+export default function VocabTestMode({ testQuestions, unit, onComplete }: Props) {
+  const [items] = useState<VocabTestItem[]>(() => buildVocabTestItems(testQuestions, unit));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<VocabTestAnswer[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
@@ -82,7 +83,7 @@ export default function VocabTestMode({ testQuestions, onComplete }: Props) {
           </span>
         </div>
         <p className="headphone-hint">
-          {isEnToJa ? '英語→日本語' : '日本語→英語'}
+          {isEnToJa ? '英語→日本語' : '日本語→英語'}（練習で出た単語から）
         </p>
       </header>
 

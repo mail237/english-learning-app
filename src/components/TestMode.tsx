@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Question, TestAnswer } from '../types';
 import { TEST_QUESTION_COUNT } from '../data/constants';
 import { getQuestionsByUnit } from '../data/questions';
@@ -17,9 +17,14 @@ export default function TestMode({ unit, onComplete }: Props) {
     shuffleForTest(getQuestionsByUnit(unit), TEST_QUESTION_COUNT),
   );
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<TestAnswer[]>([]);
+  const [, setAnswers] = useState<TestAnswer[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [locked, setLocked] = useState(false);
+  const currentIndexRef = useRef(0);
+  const onCompleteRef = useRef(onComplete);
+
+  currentIndexRef.current = currentIndex;
+  onCompleteRef.current = onComplete;
 
   const current = questions[currentIndex];
 
@@ -32,19 +37,22 @@ export default function TestMode({ unit, onComplete }: Props) {
   }, [current]);
 
   const advance = (newAnswer: TestAnswer) => {
-    const newAnswers = [...answers, newAnswer];
-    setTimeout(() => {
-      if (currentIndex + 1 >= questions.length) {
-        const correctCount = newAnswers.filter((a) => a.correct).length;
-        const accuracy = Math.round((correctCount / newAnswers.length) * 100);
-        onComplete(newAnswers, accuracy, questions);
-      } else {
-        setAnswers(newAnswers);
-        setCurrentIndex((i) => i + 1);
-        setSelectedIndex(null);
-        setLocked(false);
-      }
-    }, 600);
+    setAnswers((prev) => {
+      const newAnswers = [...prev, newAnswer];
+      setTimeout(() => {
+        const idx = currentIndexRef.current;
+        if (idx + 1 >= questions.length) {
+          const correctCount = newAnswers.filter((a) => a.correct).length;
+          const accuracy = Math.round((correctCount / newAnswers.length) * 100);
+          onCompleteRef.current(newAnswers, accuracy, questions);
+        } else {
+          setCurrentIndex(idx + 1);
+          setSelectedIndex(null);
+          setLocked(false);
+        }
+      }, 600);
+      return newAnswers;
+    });
   };
 
   const handleSelectIndex = (index: number) => {

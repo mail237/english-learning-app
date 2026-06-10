@@ -93,10 +93,26 @@ export interface UnitProgress {
   testDate?: string;
 }
 
+export interface PendingSpeakingBatch {
+  id: string;
+  unit: number;
+  items: SpeakingItem[];
+  savedAt: string;
+  testCorrect: number;
+  testTotal: number;
+  testAccuracy: number;
+  vocabCorrect: number;
+  vocabTotal: number;
+  vocabAccuracy: number;
+  practiceAccuracy?: number;
+}
+
 export interface StudentData {
   name: string;
   unitProgress: Record<number, UnitProgress>;
   questionStats: Record<string, QuestionStats>;
+  /** あとでまとめてやる音読テスト */
+  pendingSpeaking?: PendingSpeakingBatch[];
 }
 
 export interface AppSettings {
@@ -118,6 +134,7 @@ export interface SessionRecord {
   speakingAccuracy: number;
   overallScore: number;
   date: string;
+  speakingPending?: boolean;
 }
 
 export type Screen =
@@ -129,6 +146,7 @@ export type Screen =
   | 'test'
   | 'vocabTest'
   | 'speakingCheck'
+  | 'speakingBatch'
   | 'testResults'
   | 'review';
 
@@ -179,6 +197,7 @@ export interface FullTestResult {
   speakingAccuracy: number;
   overallScore: number;
   wrongTestAnswers: TestAnswer[];
+  speakingPending?: boolean;
 }
 
 export type Feedback = 'none' | 'correct' | 'incorrect';

@@ -726,6 +726,17 @@ body {
   padding: 10px 16px;
 }
 
+.word-order-reset {
+  display: block;
+  margin: 0 auto 8px;
+}
+
+.checkpoint-skip {
+  margin-top: 16px;
+  width: 100%;
+  text-align: center;
+}
+
 .btn-choice-sentence {
   font-size: var(--font-size-base);
   text-align: left;

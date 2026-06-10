@@ -6,13 +6,26 @@ export function normalizeWordOrderToken(token: string): string {
   return token.replace(/^[('"]+/, '').replace(/[.,!?]+$/, '').trim();
 }
 
+function ensureBankCoversAnswer(words: string[], answer: string[]): string[] {
+  const bank = [...words];
+  for (const token of answer) {
+    const needed = answer.filter((w) => w === token).length;
+    let have = bank.filter((w) => w === token).length;
+    while (have < needed) {
+      bank.push(token);
+      have++;
+    }
+  }
+  return bank;
+}
+
 /** 疑問文は ? チップを補完（データ不備・旧キャッシュ両対応） */
 export function prepareWordOrderQuestion(question: WordOrderQuestion): {
   words: string[];
   answer: string[];
 } {
   const answer = question.answer.map(normalizeWordOrderToken);
-  const words = question.words.map(normalizeWordOrderToken);
+  let words = question.words.map(normalizeWordOrderToken);
   const isQuestion = question.sentence.trim().endsWith('?');
 
   if (isQuestion) {
@@ -24,6 +37,7 @@ export function prepareWordOrderQuestion(question: WordOrderQuestion): {
     }
   }
 
+  words = ensureBankCoversAnswer(words, answer);
   return { words, answer };
 }
 

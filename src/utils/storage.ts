@@ -37,10 +37,15 @@ function mergeUnitProgress(
 export function loadStudentLocal(name: string): StudentData {
   const raw = localStorage.getItem(STUDENT_PREFIX + name);
   if (!raw) {
-    return { name, unitProgress: defaultUnitProgress(), questionStats: {} };
+    return { name, unitProgress: defaultUnitProgress(), questionStats: {}, pendingSpeaking: [] };
   }
   const data = JSON.parse(raw) as StudentData;
-  return { ...data, name, unitProgress: mergeUnitProgress(data.unitProgress) };
+  return {
+    ...data,
+    name,
+    unitProgress: mergeUnitProgress(data.unitProgress),
+    pendingSpeaking: data.pendingSpeaking ?? [],
+  };
 }
 
 export async function loadStudent(name: string): Promise<StudentData> {
@@ -54,6 +59,7 @@ export async function loadStudent(name: string): Promise<StudentData> {
     name,
     unitProgress: mergeUnitProgress(remote.unitProgress),
     questionStats: remote.questionStats ?? {},
+    pendingSpeaking: local.pendingSpeaking ?? [],
   };
   saveStudentLocal(merged);
   return merged;

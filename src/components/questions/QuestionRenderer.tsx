@@ -1,4 +1,6 @@
 import type { Question, Feedback, QuestionMode } from '../../types';
+import { getVocabForQuestion } from '../../data/vocab';
+import VocabHint from '../VocabHint';
 import MeaningView from './MeaningView';
 import WordOrderView from './WordOrderView';
 import FillInView from './FillInView';
@@ -19,6 +21,7 @@ interface Props {
   onWordOrderWrong: (attempt?: string[]) => void;
   onReplay: () => void;
   showTypeBadge?: boolean;
+  showVocabHint?: boolean;
 }
 
 export default function QuestionRenderer({
@@ -33,7 +36,10 @@ export default function QuestionRenderer({
   onWordOrderWrong,
   onReplay,
   showTypeBadge = false,
+  showVocabHint = false,
 }: Props) {
+  const vocabEntries = showVocabHint ? getVocabForQuestion(question.id, question.vocab) : [];
+
   const commonChoiceProps = {
     feedback,
     showAnswer,
@@ -85,6 +91,8 @@ export default function QuestionRenderer({
       {question.type === 'error-detection' && (
         <ErrorDetectionView question={question} {...commonChoiceProps} />
       )}
+
+      {showVocabHint && <VocabHint entries={vocabEntries} />}
     </div>
   );
 }
