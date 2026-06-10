@@ -1,4 +1,36 @@
-import type { Question } from '../types';
+import type { Question, WordOrderQuestion } from '../types';
+
+/** 語順問題の比較用（語尾の ? や Osaka? などを正規化） */
+export function normalizeWordOrderToken(token: string): string {
+  if (token === '?') return '?';
+  return token.replace(/^[('"]+/, '').replace(/[.,!?]+$/, '').trim();
+}
+
+/** 疑問文は ? チップを補完（データ不備・旧キャッシュ両対応） */
+export function prepareWordOrderQuestion(question: WordOrderQuestion): {
+  words: string[];
+  answer: string[];
+} {
+  const answer = question.answer.map(normalizeWordOrderToken);
+  const words = question.words.map(normalizeWordOrderToken);
+  const isQuestion = question.sentence.trim().endsWith('?');
+
+  if (isQuestion) {
+    if (!answer.includes('?')) {
+      answer.push('?');
+    }
+    if (!words.includes('?')) {
+      words.push('?');
+    }
+  }
+
+  return { words, answer };
+}
+
+export function wordsMatchWordOrderAnswer(selected: string[], expected: string[]): boolean {
+  if (selected.length !== expected.length) return false;
+  return selected.every((w, i) => normalizeWordOrderToken(w) === normalizeWordOrderToken(expected[i]));
+}
 
 export function shouldAutoSpeak(question: Question): boolean {
   return question.type !== 'listening' && question.type !== 'jp-to-en';
@@ -25,16 +57,14 @@ export function checkIndexAnswer(question: Question, index: number): boolean {
 
 export function checkWordOrderAnswer(question: Question, words: string[]): boolean {
   if (question.type !== 'word-order') return false;
-  return (
-    words.length === question.answer.length &&
-    words.every((w, i) => w === question.answer[i])
-  );
+  const { answer } = prepareWordOrderQuestion(question);
+  return wordsMatchWordOrderAnswer(words, answer);
 }
 
 export function getCorrectAnswerText(question: Question): string {
   switch (question.type) {
     case 'word-order':
-      return question.answer.join(' ');
+      return prepareWordOrderQuestion(question).answer.join(' ');
     case 'fill-in':
       return question.sentence.replace('___', question.choices[question.answer]);
     case 'jp-to-en':

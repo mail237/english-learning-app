@@ -1,6 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { WordOrderQuestion, Feedback, QuestionMode } from '../../types';
-import { shuffleArray } from '../../utils/questionHelpers';
+import {
+  prepareWordOrderQuestion,
+  shuffleArray,
+  wordsMatchWordOrderAnswer,
+} from '../../utils/questionHelpers';
 
 interface Props {
   question: WordOrderQuestion;
@@ -23,15 +27,19 @@ export default function WordOrderView({
   onWrong,
   onReplay,
 }: Props) {
+  const { words: wordBank, answer: expectedAnswer } = useMemo(
+    () => prepareWordOrderQuestion(question),
+    [question],
+  );
   const [available, setAvailable] = useState<string[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [localFeedback, setLocalFeedback] = useState<Feedback>('none');
 
   useEffect(() => {
-    setAvailable(shuffleArray(question.words));
+    setAvailable(shuffleArray(wordBank));
     setSelected([]);
     setLocalFeedback('none');
-  }, [question.id]);
+  }, [question.id, wordBank]);
 
   const handleWordTap = (word: string, index: number) => {
     if (disabled || feedback !== 'none' || localFeedback !== 'none') return;
@@ -41,8 +49,8 @@ export default function WordOrderView({
     setSelected(newSelected);
     setAvailable(newAvailable);
 
-    if (newSelected.length === question.answer.length) {
-      const isCorrect = newSelected.every((w, i) => w === question.answer[i]);
+    if (newSelected.length === expectedAnswer.length) {
+      const isCorrect = wordsMatchWordOrderAnswer(newSelected, expectedAnswer);
       if (isCorrect) {
         setLocalFeedback('correct');
         onCorrect();
@@ -51,7 +59,7 @@ export default function WordOrderView({
         onWrong();
         setTimeout(() => {
           setSelected([]);
-          setAvailable(shuffleArray(question.words));
+          setAvailable(shuffleArray(wordBank));
           setLocalFeedback('none');
         }, 1200);
       } else {
@@ -100,7 +108,7 @@ export default function WordOrderView({
             selected.map((word, i) => (
               <button
                 key={`${word}-${i}`}
-                className="btn word-chip word-chip-selected"
+                className={`btn word-chip word-chip-selected${word === '?' ? ' word-chip-punct' : ''}`}
                 onClick={() => handleRemoveWord(i)}
                 disabled={disabled || displayFeedback !== 'none'}
               >
@@ -114,7 +122,7 @@ export default function WordOrderView({
           {available.map((word, i) => (
             <button
               key={`${word}-${i}`}
-              className="btn word-chip"
+              className={`btn word-chip${word === '?' ? ' word-chip-punct' : ''}`}
               onClick={() => handleWordTap(word, i)}
               disabled={disabled || displayFeedback !== 'none'}
             >
@@ -126,7 +134,7 @@ export default function WordOrderView({
 
       {showAnswer && (
         <div className="correct-reveal">
-          正解は「<strong>{question.answer.join(' ')}</strong>」だよ
+          正解は「<strong>{expectedAnswer.join(' ')}</strong>」だよ
         </div>
       )}
 

@@ -719,6 +719,13 @@ body {
   background: #f0f7ff;
 }
 
+.word-chip-punct {
+  min-width: 52px;
+  font-size: 28px;
+  line-height: 1;
+  padding: 10px 16px;
+}
+
 .btn-choice-sentence {
   font-size: var(--font-size-base);
   text-align: left;
@@ -730,6 +737,129 @@ body {
   margin-top: 8px;
   color: var(--color-primary);
   font-weight: 600;
+}
+
+/* Vocab learning flow */
+.vocab-hint {
+  margin-top: 20px;
+  padding: 14px 16px;
+  background: #f6ffed;
+  border: 2px solid #b7eb8f;
+  border-radius: 12px;
+}
+
+.vocab-hint-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #389e0d;
+  margin-bottom: 10px;
+}
+
+.vocab-hint-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vocab-hint-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-card);
+  border-radius: 999px;
+  padding: 6px 12px;
+  border: 1px solid #d9f7be;
+}
+
+.vocab-hint-en {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.vocab-hint-ja {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.vocab-session-count {
+  margin-left: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #389e0d;
+}
+
+.checkpoint-badge {
+  display: inline-block;
+  background: #722ed1;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+.checkpoint-lead {
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.vocab-summary {
+  width: 100%;
+  max-width: 480px;
+  background: var(--color-card);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 8px;
+}
+
+.vocab-summary-title {
+  font-size: var(--font-size-base);
+  margin-bottom: 4px;
+}
+
+.vocab-summary-note {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-bottom: 12px;
+}
+
+.vocab-summary-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vocab-summary-chip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  background: #f0f7ff;
+  border: 1px solid #91caff;
+  border-radius: 10px;
+  padding: 8px 10px;
+  min-width: 88px;
+}
+
+.vocab-summary-en {
+  font-weight: 700;
+  color: var(--color-primary);
+  font-size: 14px;
+}
+
+.vocab-summary-ja {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.vocab-summary-more {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  text-align: center;
 }
 
 /* Vocab test */
@@ -848,6 +978,32 @@ body {
   gap: 24px;
   justify-content: center;
   padding: 24px 0 16px;
+}
+
+.speaking-defer-btn {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.speaking-defer-note {
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+.pending-speaking-btn {
+  width: 100%;
+  margin-bottom: 16px;
+  background: #13c2c2;
+  border-color: #13c2c2;
+}
+
+.pending-speaking-btn:hover {
+  background: #08979c;
+  border-color: #08979c;
 }
 
 .btn-speaking {
