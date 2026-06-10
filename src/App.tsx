@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type {
   FullTestResult,
   PendingSpeakingBatch,
@@ -9,7 +9,7 @@ import type {
   TestAnswer,
   VocabEntry,
 } from './types';
-import { loadStudent, saveSession, saveStudent } from './utils/storage';
+import { loadStudent, refreshStudent, saveSession, saveStudent } from './utils/storage';
 import {
   addPendingBatch,
   createPendingBatchId,
@@ -53,6 +53,32 @@ function App() {
     setStudent(data);
     setScreen('units');
   };
+
+  // 単元選択画面ではクラウドから最新進捗を取り込む（全iPadで共有）
+  useEffect(() => {
+    if (screen !== 'units' || !student) return;
+
+    let cancelled = false;
+    void refreshStudent(student.name).then((data) => {
+      if (!cancelled) setStudent(data);
+    });
+
+    const syncFromCloud = () => {
+      if (document.visibilityState !== 'visible' || screen !== 'units' || !student) return;
+      void refreshStudent(student.name).then((data) => {
+        setStudent((prev) => (prev?.name === data.name ? data : prev));
+      });
+    };
+
+    window.addEventListener('focus', syncFromCloud);
+    document.addEventListener('visibilitychange', syncFromCloud);
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener('focus', syncFromCloud);
+      document.removeEventListener('visibilitychange', syncFromCloud);
+    };
+  }, [screen, student?.name]);
 
   const handleSelectUnit = (unit: number) => {
     if (!student) return;
@@ -167,17 +193,34 @@ function App() {
   const finalizeTestWithSpeaking = (
     speakingResults: SpeakingResult[],
     accuracy: number,
-    pending: boolean,
+    options: { pending?: boolean; skipped?: boolean; skippedTotal?: number } = {},
   ) => {
     if (!student || !fullResult) return;
 
-    const speakingPassed = speakingResults.filter((r) => r.passed).length;
-    const speakingTotal = speakingResults.length;
+    const { pending = false, skipped = false, skippedTotal = 0 } = options;
     const vocabAcc = fullResult.vocabTotal === 0 ? fullResult.testAccuracy : fullResult.vocabAccuracy;
-    const speakAcc = speakingTotal === 0 ? fullResult.testAccuracy : accuracy;
-    const overallScore = pending
-      ? Math.round((fullResult.testAccuracy + vocabAcc) / 2)
-      : calcOverallScore(fullResult.testAccuracy, vocabAcc, speakAcc);
+
+    let speakingPassed: number;
+    let speakingTotal: number;
+    let speakAcc: number;
+    let overallScore: number;
+
+    if (skipped) {
+      speakingPassed = 0;
+      speakingTotal = skippedTotal;
+      speakAcc = 0;
+      overallScore = Math.round((fullResult.testAccuracy + vocabAcc) / 2);
+    } else if (pending) {
+      speakingPassed = 0;
+      speakingTotal = skippedTotal;
+      speakAcc = 0;
+      overallScore = Math.round((fullResult.testAccuracy + vocabAcc) / 2);
+    } else {
+      speakingPassed = speakingResults.filter((r) => r.passed).length;
+      speakingTotal = speakingResults.length;
+      speakAcc = speakingTotal === 0 ? fullResult.testAccuracy : accuracy;
+      overallScore = calcOverallScore(fullResult.testAccuracy, vocabAcc, speakAcc);
+    }
 
     const result: FullTestResult = {
       ...fullResult,
@@ -186,6 +229,7 @@ function App() {
       speakingAccuracy: speakAcc,
       overallScore,
       speakingPending: pending,
+      speakingSkipped: skipped,
     };
 
     setFullResult(result);
@@ -228,7 +272,12 @@ function App() {
   };
 
   const handleSpeakingComplete = (results: SpeakingResult[], accuracy: number) => {
-    finalizeTestWithSpeaking(results, accuracy, false);
+    finalizeTestWithSpeaking(results, accuracy);
+  };
+
+  const handleSpeakingSkip = () => {
+    const items = buildSpeakingItems(testQuestions, currentUnit);
+    finalizeTestWithSpeaking([], 0, { skipped: true, skippedTotal: items.length });
   };
 
   const handleSpeakingDefer = () => {
@@ -236,7 +285,7 @@ function App() {
 
     const items = buildSpeakingItems(testQuestions, currentUnit);
     if (items.length === 0) {
-      finalizeTestWithSpeaking([], 100, false);
+      finalizeTestWithSpeaking([], 100);
       return;
     }
 
@@ -408,6 +457,7 @@ function App() {
           unit={currentUnit}
           onComplete={handleSpeakingComplete}
           onDefer={handleSpeakingDefer}
+          onSkip={handleSpeakingSkip}
         />
       )}
 

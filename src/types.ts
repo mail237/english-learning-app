@@ -113,6 +113,8 @@ export interface StudentData {
   questionStats: Record<string, QuestionStats>;
   /** あとでまとめてやる音読テスト */
   pendingSpeaking?: PendingSpeakingBatch[];
+  /** クラウド同期用（ISO 8601） */
+  updatedAt?: string;
 }
 
 export interface AppSettings {
@@ -198,6 +200,7 @@ export interface FullTestResult {
   overallScore: number;
   wrongTestAnswers: TestAnswer[];
   speakingPending?: boolean;
+  speakingSkipped?: boolean;
 }
 
 export type Feedback = 'none' | 'correct' | 'incorrect';

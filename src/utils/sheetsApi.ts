@@ -6,6 +6,11 @@ export interface SheetsConfig {
   secret?: string;
 }
 
+export type RemoteStudentProgress = Pick<
+  StudentData,
+  'unitProgress' | 'questionStats' | 'pendingSpeaking' | 'updatedAt'
+>;
+
 let cachedConfig: SheetsConfig | null | undefined;
 
 export async function loadSheetsConfig(): Promise<SheetsConfig | null> {
@@ -45,17 +50,36 @@ function buildUrl(config: SheetsConfig, params: Record<string, string>): string 
 }
 
 async function postJson(config: SheetsConfig, body: Record<string, unknown>): Promise<boolean> {
-  const res = await fetch(config.url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({
-      ...body,
-      secret: config.secret ?? '',
-    }),
-  });
-  if (!res.ok) return false;
-  const data = await res.json();
-  return data?.ok === true;
+  try {
+    const res = await fetch(config.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        ...body,
+        secret: config.secret ?? '',
+      }),
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    return data?.ok === true;
+  } catch {
+    return false;
+  }
+}
+
+/** 設定ファイルがあり、API が実際に応答するか */
+export async function verifySheetsConnection(): Promise<'connected' | 'configured' | 'offline'> {
+  const config = await loadSheetsConfig();
+  if (!config) return 'offline';
+
+  try {
+    const res = await fetch(buildUrl(config, { action: 'ping' }), { cache: 'no-store' });
+    if (!res.ok) return 'configured';
+    const data = await res.json();
+    return data?.ok === true ? 'connected' : 'configured';
+  } catch {
+    return 'configured';
+  }
 }
 
 export async function fetchStudents(): Promise<string[]> {
@@ -75,9 +99,7 @@ export async function fetchStudents(): Promise<string[]> {
   return [...STUDENTS];
 }
 
-export async function fetchStudentProgress(
-  name: string,
-): Promise<Pick<StudentData, 'unitProgress' | 'questionStats'> | null> {
+export async function fetchStudentProgress(name: string): Promise<RemoteStudentProgress | null> {
   const config = await loadSheetsConfig();
   if (!config) return null;
 
@@ -88,7 +110,7 @@ export async function fetchStudentProgress(
     if (!res.ok) return null;
     const data = await res.json();
     if (data?.ok && data.data) {
-      return data.data as Pick<StudentData, 'unitProgress' | 'questionStats'>;
+      return data.data as RemoteStudentProgress;
     }
   } catch {
     return null;
@@ -96,24 +118,22 @@ export async function fetchStudentProgress(
   return null;
 }
 
-export async function saveStudentProgressRemote(data: StudentData): Promise<void> {
+export async function saveStudentProgressRemote(data: StudentData): Promise<boolean> {
   const config = await loadSheetsConfig();
-  if (!config) return;
+  if (!config) return false;
 
-  const payload = {
+  const payload: RemoteStudentProgress = {
     unitProgress: data.unitProgress,
     questionStats: data.questionStats,
+    pendingSpeaking: data.pendingSpeaking ?? [],
+    updatedAt: data.updatedAt,
   };
 
-  try {
-    await postJson(config, {
-      action: 'saveProgress',
-      name: data.name,
-      data: payload,
-    });
-  } catch {
-    // local copy remains
-  }
+  return postJson(config, {
+    action: 'saveProgress',
+    name: data.name,
+    data: payload,
+  });
 }
 
 export async function saveSessionRemote(record: SessionRecord): Promise<void> {

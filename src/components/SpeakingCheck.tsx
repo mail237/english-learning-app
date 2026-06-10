@@ -8,9 +8,10 @@ interface Props {
   unit: number;
   onComplete: (results: SpeakingResult[], accuracy: number) => void;
   onDefer: () => void;
+  onSkip: () => void;
 }
 
-export default function SpeakingCheck({ testQuestions, unit, onComplete, onDefer }: Props) {
+export default function SpeakingCheck({ testQuestions, unit, onComplete, onDefer, onSkip }: Props) {
   const [items] = useState(() => buildSpeakingItems(testQuestions, unit));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [results, setResults] = useState<SpeakingResult[]>([]);
@@ -112,9 +113,14 @@ export default function SpeakingCheck({ testQuestions, unit, onComplete, onDefer
         </button>
       </div>
 
-      <button className="btn btn-secondary btn-large speaking-defer-btn" onClick={onDefer}>
-        あとでまとめてやる
-      </button>
+      <div className="speaking-extra-actions">
+        <button type="button" className="btn btn-text speaking-skip" onClick={onSkip} disabled={locked}>
+          スキップして結果を見る
+        </button>
+        <button className="btn btn-secondary btn-large speaking-defer-btn" onClick={onDefer}>
+          あとでまとめてやる
+        </button>
+      </div>
       <p className="speaking-defer-note">時間がないときは単元選択からまとめてできます</p>
     </div>
   );

@@ -82,9 +82,18 @@ body {
 
 .sheets-status {
   font-size: 14px;
-  color: var(--color-success);
   margin-top: 8px;
   font-weight: 600;
+}
+
+.sheets-status-ok {
+  color: var(--color-success);
+}
+
+.sheets-status-warn {
+  color: var(--color-warning);
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 /* Cards */
@@ -991,10 +1000,28 @@ body {
   padding: 24px 0 16px;
 }
 
-.speaking-defer-btn {
+.speaking-extra-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
   width: 100%;
   max-width: 480px;
   margin: 0 auto;
+}
+
+.speaking-skip {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  padding: 8px 12px;
+}
+
+.speaking-skip:hover:not(:disabled) {
+  color: var(--color-primary);
+}
+
+.speaking-defer-btn {
+  width: 100%;
 }
 
 .speaking-defer-note {

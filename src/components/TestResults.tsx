@@ -26,6 +26,7 @@ export default function TestResults({ result, onFinish, onReview }: Props) {
     overallScore,
     wrongTestAnswers,
     speakingPending,
+    speakingSkipped,
   } = result;
 
   const gradeClass = overallScore >= 80 ? 'great' : overallScore >= 60 ? 'good' : 'retry';
@@ -64,7 +65,9 @@ export default function TestResults({ result, onFinish, onReview }: Props) {
         <div className="result-row">
           <span className="result-label">スピーキング</span>
           <span className="result-value">
-            {speakingPending ? (
+            {speakingSkipped ? (
+              <strong>スキップ（{speakingTotal}語）</strong>
+            ) : speakingPending ? (
               <>
                 <strong>{speakingTotal}語 あとでまとめて</strong>（単元選択からできます）
               </>

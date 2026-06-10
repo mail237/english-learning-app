@@ -3,6 +3,7 @@ import { UNITS } from '../data/units';
 import { normalizeUnitProgress } from './unitProgress';
 import {
   fetchStudentProgress,
+  isSheetsEnabled,
   loadSheetsConfig,
   saveSessionRemote,
   saveStudentProgressRemote,
@@ -34,35 +35,78 @@ function mergeUnitProgress(
   return merged;
 }
 
-export function loadStudentLocal(name: string): StudentData {
-  const raw = localStorage.getItem(STUDENT_PREFIX + name);
+function normalizeStudent(name: string, raw: Partial<StudentData> | null | undefined): StudentData {
   if (!raw) {
     return { name, unitProgress: defaultUnitProgress(), questionStats: {}, pendingSpeaking: [] };
   }
-  const data = JSON.parse(raw) as StudentData;
   return {
-    ...data,
     name,
-    unitProgress: mergeUnitProgress(data.unitProgress),
-    pendingSpeaking: data.pendingSpeaking ?? [],
+    unitProgress: mergeUnitProgress(raw.unitProgress),
+    questionStats: raw.questionStats ?? {},
+    pendingSpeaking: raw.pendingSpeaking ?? [],
+    updatedAt: raw.updatedAt,
   };
+}
+
+function hasSavedProgress(data: StudentData): boolean {
+  const hasUnits = Object.values(data.unitProgress).some(
+    (p) => p.status !== '未着手' || (p.completedStep ?? 0) > 0,
+  );
+  const hasStats = Object.keys(data.questionStats).length > 0;
+  const hasPending = (data.pendingSpeaking?.length ?? 0) > 0;
+  return hasUnits || hasStats || hasPending;
+}
+
+function progressTimestamp(data: StudentData): number {
+  const parsed = data.updatedAt ? Date.parse(data.updatedAt) : NaN;
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+/** 新しい方を採用（同時刻ならクラウド優先） */
+function pickNewerStudent(local: StudentData, remote: StudentData): StudentData {
+  const localTime = progressTimestamp(local);
+  const remoteTime = progressTimestamp(remote);
+  if (remoteTime > localTime) return remote;
+  if (localTime > remoteTime) return local;
+  return remote;
+}
+
+export function loadStudentLocal(name: string): StudentData {
+  const raw = localStorage.getItem(STUDENT_PREFIX + name);
+  if (!raw) {
+    return normalizeStudent(name, null);
+  }
+  return normalizeStudent(name, JSON.parse(raw) as Partial<StudentData>);
 }
 
 export async function loadStudent(name: string): Promise<StudentData> {
   await loadSheetsConfig();
   const local = loadStudentLocal(name);
 
-  const remote = await fetchStudentProgress(name);
-  if (!remote) return local;
+  if (!isSheetsEnabled()) {
+    return local;
+  }
 
-  const merged: StudentData = {
-    name,
-    unitProgress: mergeUnitProgress(remote.unitProgress),
-    questionStats: remote.questionStats ?? {},
-    pendingSpeaking: local.pendingSpeaking ?? [],
-  };
-  saveStudentLocal(merged);
-  return merged;
+  const remoteRaw = await fetchStudentProgress(name);
+  if (!remoteRaw) {
+    if (hasSavedProgress(local)) {
+      const stamped = { ...local, updatedAt: local.updatedAt ?? new Date().toISOString() };
+      saveStudentLocal(stamped);
+      void saveStudentProgressRemote(stamped);
+      return stamped;
+    }
+    return local;
+  }
+
+  const remote = normalizeStudent(name, remoteRaw);
+  const winner = pickNewerStudent(local, remote);
+  saveStudentLocal(winner);
+
+  if (winner === local && progressTimestamp(local) >= progressTimestamp(remote)) {
+    void saveStudentProgressRemote(winner);
+  }
+
+  return winner;
 }
 
 export function saveStudentLocal(data: StudentData): void {
@@ -70,8 +114,14 @@ export function saveStudentLocal(data: StudentData): void {
 }
 
 export function saveStudent(data: StudentData): void {
-  saveStudentLocal(data);
-  void saveStudentProgressRemote(data);
+  const stamped: StudentData = { ...data, updatedAt: new Date().toISOString() };
+  saveStudentLocal(stamped);
+  void saveStudentProgressRemote(stamped);
+}
+
+/** 単元選択などでクラウドから最新を取り込む */
+export async function refreshStudent(name: string): Promise<StudentData> {
+  return loadStudent(name);
 }
 
 export function loadSettings(): AppSettings {

@@ -111,6 +111,15 @@ export default function SpeakingBatchMode({ batches, onComplete, onBack }: Props
           ×
         </button>
       </div>
+
+      <button
+        type="button"
+        className="btn btn-text speaking-skip"
+        onClick={() => onComplete(resultsByBatch.current)}
+        disabled={locked}
+      >
+        スキップして終わる
+      </button>
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { STUDENTS } from '../data/students';
 import { loadSettings, saveSettings } from '../utils/storage';
 import { preloadVoices } from '../utils/speech';
-import { fetchStudents, loadSheetsConfig } from '../utils/sheetsApi';
+import { fetchStudents, verifySheetsConnection } from '../utils/sheetsApi';
 
 interface Props {
   onStart: (name: string) => void;
@@ -12,7 +12,9 @@ export default function StartScreen({ onStart }: Props) {
   const [name, setName] = useState('');
   const [students, setStudents] = useState<string[]>([...STUDENTS]);
   const [loadingStudents, setLoadingStudents] = useState(true);
-  const [sheetsConnected, setSheetsConnected] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<'loading' | 'connected' | 'configured' | 'offline'>(
+    'loading',
+  );
   const [showTeacher, setShowTeacher] = useState(false);
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -27,10 +29,10 @@ export default function StartScreen({ onStart }: Props) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const config = await loadSheetsConfig();
-      if (!cancelled) setSheetsConnected(config !== null);
+      const status = await verifySheetsConnection();
       const list = await fetchStudents();
       if (!cancelled) {
+        setSyncStatus(status);
         setStudents(list);
         setLoadingStudents(false);
       }
@@ -72,8 +74,13 @@ export default function StartScreen({ onStart }: Props) {
       <div className="hero">
         <h1>英語学習アプリ</h1>
         <p className="subtitle">英文の意味をたくさん体験しよう！</p>
-        {sheetsConnected && (
-          <p className="sheets-status">☁️ スプレッドシート連携中</p>
+        {syncStatus === 'connected' && (
+          <p className="sheets-status sheets-status-ok">☁️ 全iPadで進捗を共有中</p>
+        )}
+        {syncStatus === 'configured' && (
+          <p className="sheets-status sheets-status-warn">
+            ⚠️ クラウド同期できていません（先生に連絡）
+          </p>
         )}
       </div>
 
