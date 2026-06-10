@@ -253,8 +253,16 @@ const wordOrderDrills = [
   { s: "We don't have homework today.", w: ['today', 'homework', 'have', "don't", 'We'], u: 2, st: 3, l: '応用', v: 'homework' },
 ];
 
+function sentenceToWordOrderAnswer(sentence) {
+  return sentence
+    .replace(/[?.!]/g, '')
+    .replace(/\./g, '')
+    .split(' ')
+    .filter(Boolean);
+}
+
 for (const d of wordOrderDrills) {
-  questions.push(wordOrder(d.u, d.st, d.l, d.s, d.w, d.s.replace(/\./g, '').split(' '), [{ en: d.v, ja: d.v }]));
+  questions.push(wordOrder(d.u, d.st, d.l, d.s, d.w, sentenceToWordOrderAnswer(d.s), [{ en: d.v, ja: d.v }]));
 }
 
 function esc(s) {
