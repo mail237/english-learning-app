@@ -1,4 +1,5 @@
 import type { FillInQuestion, Feedback } from '../../types';
+import { formatFillInSentence } from '../../utils/questionHelpers';
 import ChoiceButtons from './ChoiceButtons';
 
 interface Props {
@@ -20,10 +21,20 @@ export default function FillInView({
   onSelect,
   onReplay,
 }: Props) {
+  const displayWord =
+    selected !== null
+      ? question.choices[selected]
+      : showAnswer
+        ? question.choices[question.answer]
+        : null;
+  const displaySentence = displayWord
+    ? formatFillInSentence(question.sentence, displayWord)
+    : question.sentence;
+
   return (
     <>
       <div className="sentence-box">
-        <p className="sentence">{question.sentence}</p>
+        <p className="sentence">{displaySentence}</p>
         <button className="btn btn-icon" onClick={onReplay} title="もう一度聞く">
           🔊
         </button>
@@ -33,7 +44,7 @@ export default function FillInView({
 
       {showAnswer && (
         <div className="correct-reveal">
-          正解は「<strong>{question.choices[question.answer]}</strong>」だよ
+          正解は「<strong>{formatFillInSentence(question.sentence, question.choices[question.answer])}</strong>」だよ
         </div>
       )}
 

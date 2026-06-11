@@ -80,6 +80,17 @@ export function maybeAutoAppendQuestionMark(
   return { selected: [...selected, '?'], available };
 }
 
+const AUXILIARY_NEGATIVES = new Set(["don't", "doesn't", 'do not', 'does not']);
+
+/** don't / doesn't を入れる穴埋めでは、文中の余分な not を除いて表示 */
+export function formatFillInSentence(sentence: string, word: string): string {
+  let filled = sentence.replace('___', word);
+  if (AUXILIARY_NEGATIVES.has(word)) {
+    filled = filled.replace(/\s+not\b/, '');
+  }
+  return filled;
+}
+
 export function shouldAutoSpeak(question: Question): boolean {
   return question.type !== 'listening' && question.type !== 'jp-to-en';
 }
@@ -114,7 +125,7 @@ export function getCorrectAnswerText(question: Question): string {
     case 'word-order':
       return prepareWordOrderQuestion(question).answer.join(' ');
     case 'fill-in':
-      return question.sentence.replace('___', question.choices[question.answer]);
+      return formatFillInSentence(question.sentence, question.choices[question.answer]);
     case 'jp-to-en':
     case 'meaning':
     case 'listening':
@@ -131,7 +142,7 @@ export function getSelectedAnswerText(
     return selected.join(' ');
   }
   if (question.type === 'fill-in') {
-    return question.sentence.replace('___', question.choices[selected]);
+    return formatFillInSentence(question.sentence, question.choices[selected]);
   }
   if (question.type === 'word-order') {
     return selected.toString();
