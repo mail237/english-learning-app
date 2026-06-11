@@ -52,13 +52,18 @@ const questions = [];
 // ── Unit 1 バリエーション（be動詞）──
 const u1Names = ['Ken', 'Yuki', 'Tom', 'Emi', 'Ryo'];
 const u1Places = ['Osaka', 'Kyoto', 'Tokyo', 'Kobe', 'Nara'];
+const NAME_JA = { Ken: 'ケン', Yuki: 'ユキ', Tom: 'トム', Emi: 'エミ', Ryo: 'リョウ' };
+const PLACE_JA = { Osaka: '大阪', Kyoto: '京都', Tokyo: '東京', Kobe: '神戸', Nara: '奈良' };
 u1Names.forEach((name, i) => {
   const step = (i % 3) + 1;
   const level = i % 2 === 0 ? '基礎' : '応用';
+  const nameJa = NAME_JA[name] ?? name;
+  const place = u1Places[i];
+  const placeJa = PLACE_JA[place] ?? place;
   questions.push(
-    meaning(1, step, level, `I am ${name}.`, '文の意味は？', [`私は${name}です。`, `あなたは${name}です。`, `彼は${name}です。`], 0, [{ en: name, ja: name }]),
+    meaning(1, step, level, `I am ${name}.`, '文の意味は？', [`私は${nameJa}です。`, `あなたは${nameJa}です。`, `彼は${nameJa}です。`], 0, [{ en: name, ja: nameJa }]),
     fillIn(1, step, level, `She ___ ${name}'s sister.`, '___に入るのは？', ['is', 'am', 'are'], 0, [{ en: 'sister', ja: '姉妹' }]),
-    wordOrder(1, step, level, `We are from ${u1Places[i]}.`, ['from', u1Places[i], 'are', 'We'], ['We', 'are', 'from', u1Places[i]], [{ en: u1Places[i], ja: u1Places[i] }]),
+    wordOrder(1, step, level, `We are from ${place}.`, ['from', place, 'are', 'We'], ['We', 'are', 'from', place], [{ en: place, ja: placeJa }]),
   );
 });
 

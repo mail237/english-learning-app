@@ -10,11 +10,11 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "meaning",
     sentence: "I am Ken.",
     question: "文の意味は？",
-    choices: ["私はKenです。", "あなたはKenです。", "彼はKenです。"],
+    choices: ["私はケンです。", "あなたはケンです。", "彼はケンです。"],
     answer: 0,
     showText: true,
     vocab: [
-      { en: "Ken", ja: "Ken" }
+      { en: "Ken", ja: "ケン" }
     ]
   },
 {
@@ -42,7 +42,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     words: ["from", "Osaka", "are", "We"],
     answer: ["We", "are", "from", "Osaka"],
     vocab: [
-      { en: "Osaka", ja: "Osaka" }
+      { en: "Osaka", ja: "大阪" }
     ]
   },
 {
@@ -53,11 +53,11 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "meaning",
     sentence: "I am Yuki.",
     question: "文の意味は？",
-    choices: ["私はYukiです。", "あなたはYukiです。", "彼はYukiです。"],
+    choices: ["私はユキです。", "あなたはユキです。", "彼はユキです。"],
     answer: 0,
     showText: true,
     vocab: [
-      { en: "Yuki", ja: "Yuki" }
+      { en: "Yuki", ja: "ユキ" }
     ]
   },
 {
@@ -85,7 +85,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     words: ["from", "Kyoto", "are", "We"],
     answer: ["We", "are", "from", "Kyoto"],
     vocab: [
-      { en: "Kyoto", ja: "Kyoto" }
+      { en: "Kyoto", ja: "京都" }
     ]
   },
 {
@@ -96,11 +96,11 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "meaning",
     sentence: "I am Tom.",
     question: "文の意味は？",
-    choices: ["私はTomです。", "あなたはTomです。", "彼はTomです。"],
+    choices: ["私はトムです。", "あなたはトムです。", "彼はトムです。"],
     answer: 0,
     showText: true,
     vocab: [
-      { en: "Tom", ja: "Tom" }
+      { en: "Tom", ja: "トム" }
     ]
   },
 {
@@ -128,7 +128,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     words: ["from", "Tokyo", "are", "We"],
     answer: ["We", "are", "from", "Tokyo"],
     vocab: [
-      { en: "Tokyo", ja: "Tokyo" }
+      { en: "Tokyo", ja: "東京" }
     ]
   },
 {
@@ -139,11 +139,11 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "meaning",
     sentence: "I am Emi.",
     question: "文の意味は？",
-    choices: ["私はEmiです。", "あなたはEmiです。", "彼はEmiです。"],
+    choices: ["私はエミです。", "あなたはエミです。", "彼はエミです。"],
     answer: 0,
     showText: true,
     vocab: [
-      { en: "Emi", ja: "Emi" }
+      { en: "Emi", ja: "エミ" }
     ]
   },
 {
@@ -171,7 +171,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     words: ["from", "Kobe", "are", "We"],
     answer: ["We", "are", "from", "Kobe"],
     vocab: [
-      { en: "Kobe", ja: "Kobe" }
+      { en: "Kobe", ja: "神戸" }
     ]
   },
 {
@@ -182,11 +182,11 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "meaning",
     sentence: "I am Ryo.",
     question: "文の意味は？",
-    choices: ["私はRyoです。", "あなたはRyoです。", "彼はRyoです。"],
+    choices: ["私はリョウです。", "あなたはリョウです。", "彼はリョウです。"],
     answer: 0,
     showText: true,
     vocab: [
-      { en: "Ryo", ja: "Ryo" }
+      { en: "Ryo", ja: "リョウ" }
     ]
   },
 {
@@ -214,7 +214,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     words: ["from", "Nara", "are", "We"],
     answer: ["We", "are", "from", "Nara"],
     vocab: [
-      { en: "Nara", ja: "Nara" }
+      { en: "Nara", ja: "奈良" }
     ]
   },
 {

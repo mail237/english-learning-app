@@ -9,6 +9,7 @@ import { SPEAKING_MAX, VOCAB_TEST_MAX } from '../data/constants';
 import { getQuestionsByUnit } from '../data/questions';
 import { getVocabForQuestion } from '../data/vocab';
 import { dedupeChoicesForDisplay } from './questionHelpers';
+import { isUsefulVocabEntry, pickSpeakingMode, pickVocabTestDirection } from './vocabQuality';
 
 function shuffle<T>(array: T[]): T[] {
   const copy = [...array];
@@ -53,7 +54,7 @@ export function buildVocabPool(testQuestions: Question[], unit: number): VocabEn
     }
   }
 
-  return merged.slice(0, VOCAB_TEST_MAX);
+  return merged.filter(isUsefulVocabEntry).slice(0, VOCAB_TEST_MAX);
 }
 
 function pickDistractors(
@@ -119,7 +120,7 @@ export function buildVocabTestItems(testQuestions: Question[], unit: number): Vo
   if (pool.length === 0) return [];
 
   return shuffle(pool).map((entry, index) => {
-    const direction: VocabTestDirection = Math.random() < 0.5 ? 'en-to-ja' : 'ja-to-en';
+    const direction = pickVocabTestDirection(entry);
     return buildItem(entry, direction, pool, index);
   });
 }
@@ -129,7 +130,7 @@ export function buildSpeakingItems(testQuestions: Question[], unit: number): Spe
   const picked = shuffle(pool).slice(0, SPEAKING_MAX);
   return shuffle(picked).map((entry) => ({
     entry,
-    mode: Math.random() < 0.5 ? 'read-en' : 'say-en',
+    mode: pickSpeakingMode(entry),
   }));
 }
 
@@ -137,10 +138,11 @@ export function buildSpeakingItems(testQuestions: Question[], unit: number): Spe
 export function buildCheckpointItem(sessionVocab: VocabEntry[]): VocabTestItem | null {
   if (sessionVocab.length < 2) return null;
 
-  const pool = shuffle(sessionVocab);
-  const entry = pool[0];
-  const direction: VocabTestDirection = Math.random() < 0.5 ? 'en-to-ja' : 'ja-to-en';
-  return buildItem(entry, direction, pool, 0);
+  const useful = shuffle(sessionVocab.filter(isUsefulVocabEntry));
+  const checkpointPool = useful.length >= 2 ? useful : shuffle(sessionVocab);
+  const entry = checkpointPool[0];
+  const direction = pickVocabTestDirection(entry);
+  return buildItem(entry, direction, checkpointPool, 0);
 }
 
 export function mergeVocabEntries(existing: VocabEntry[], incoming: VocabEntry[]): VocabEntry[] {
