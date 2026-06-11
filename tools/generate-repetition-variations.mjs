@@ -68,6 +68,32 @@ u1Names.forEach((name, i) => {
 });
 
 // ── Unit 2 バリエーション（don't / doesn't）──
+const VERB_JA = {
+  like: '好き',
+  play: 'する',
+  watch: '見る',
+  eat: '食べる',
+  read: '読む',
+  study: '勉強する',
+  run: '走る',
+  cook: '作る',
+};
+
+function negativeJapanese(subj, verb, objJa) {
+  const who = subj === 'He' ? '彼' : '私';
+  const patterns = {
+    like: `${who}は${objJa}が好きではありません。`,
+    play: `${who}は${objJa}をしません。`,
+    watch: `${who}は${objJa}を見ません。`,
+    eat: `${who}は${objJa}を食べません。`,
+    read: `${who}は${objJa}を読みません。`,
+    study: `${who}は${objJa}を勉強しません。`,
+    run: `${who}は毎朝走りません。`,
+    cook: `${who}は夕食を作りません。`,
+  };
+  return patterns[verb] ?? `${who}は${objJa}をしません。`;
+}
+
 const u2verbs = [
   ['like', 'music', '音楽', "don't"],
   ['play', 'soccer', 'サッカー', "don't"],
@@ -75,17 +101,21 @@ const u2verbs = [
   ['eat', 'vegetables', '野菜', "doesn't"],
   ['read', 'comics', '漫画', "doesn't"],
   ['study', 'English', '英語', "don't"],
-  ['run', 'every morning', '毎朝走る', "doesn't"],
+  ['run', 'every morning', '毎朝', "doesn't"],
   ['cook', 'dinner', '夕食', "doesn't"],
 ];
-u2verbs.forEach(([verb, obj, ja, aux], i) => {
+u2verbs.forEach(([verb, obj, objJa, aux], i) => {
   const step = (i % 3) + 1;
   const subj = aux === "doesn't" ? 'He' : 'I';
   const level = i < 3 ? '基礎' : i < 6 ? '応用' : '発展';
+  const vocab = [
+    { en: verb, ja: VERB_JA[verb] },
+    { en: obj, ja: objJa },
+  ];
   questions.push(
-    fillIn(2, step, level, `${subj} ___ ${verb} ${obj}.`, '否定文。___は？', [aux, 'is', aux === "doesn't" ? "don't" : "doesn't"], 0, [{ en: verb, ja }]),
-    jpToEn(2, step, level, `${subj === 'He' ? '彼' : '私'}は${ja}をしません。`, [`${subj} ${aux} ${verb} ${obj}.`, `${subj} is not ${verb} ${obj}.`, `${subj} ${verb}s ${obj}.`], 0, [{ en: obj, ja }]),
-    wordOrder(2, step, level, `${subj} ${aux} ${verb} ${obj}.`, [obj, verb, aux, subj], [subj, aux, verb, obj], [{ en: obj, ja }]),
+    fillIn(2, step, level, `${subj} ___ ${verb} ${obj}.`, '否定文。___は？', [aux, 'is', aux === "doesn't" ? "don't" : "doesn't"], 0, vocab),
+    jpToEn(2, step, level, negativeJapanese(subj, verb, objJa), [`${subj} ${aux} ${verb} ${obj}.`, `${subj} is not ${verb} ${obj}.`, `${subj} ${verb}s ${obj}.`], 0, vocab),
+    wordOrder(2, step, level, `${subj} ${aux} ${verb} ${obj}.`, [obj, verb, aux, subj], [subj, aux, verb, obj], vocab),
   );
 });
 

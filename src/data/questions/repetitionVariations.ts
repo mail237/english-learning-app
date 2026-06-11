@@ -228,7 +228,8 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     choices: ["don't", "is", "doesn't"],
     answer: 0,
     vocab: [
-      { en: "like", ja: "音楽" }
+      { en: "like", ja: "好き" },
+      { en: "music", ja: "音楽" }
     ]
   },
 {
@@ -237,11 +238,12 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     step: 1,
     level: "基礎",
     type: "jp-to-en",
-    japanese: "私は音楽をしません。",
+    japanese: "私は音楽が好きではありません。",
     question: "日本語に合う英文はどれ？",
     choices: ["I don't like music.", "I is not like music.", "I likes music."],
     answer: 0,
     vocab: [
+      { en: "like", ja: "好き" },
       { en: "music", ja: "音楽" }
     ]
   },
@@ -256,6 +258,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     words: ["music", "like", "don't", "I"],
     answer: ["I", "don't", "like", "music"],
     vocab: [
+      { en: "like", ja: "好き" },
       { en: "music", ja: "音楽" }
     ]
   },
@@ -270,7 +273,8 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     choices: ["don't", "is", "doesn't"],
     answer: 0,
     vocab: [
-      { en: "play", ja: "サッカー" }
+      { en: "play", ja: "する" },
+      { en: "soccer", ja: "サッカー" }
     ]
   },
 {
@@ -284,6 +288,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     choices: ["I don't play soccer.", "I is not play soccer.", "I plays soccer."],
     answer: 0,
     vocab: [
+      { en: "play", ja: "する" },
       { en: "soccer", ja: "サッカー" }
     ]
   },
@@ -298,6 +303,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     words: ["soccer", "play", "don't", "I"],
     answer: ["I", "don't", "play", "soccer"],
     vocab: [
+      { en: "play", ja: "する" },
       { en: "soccer", ja: "サッカー" }
     ]
   },
@@ -312,7 +318,8 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     choices: ["doesn't", "is", "don't"],
     answer: 0,
     vocab: [
-      { en: "watch", ja: "テレビ" }
+      { en: "watch", ja: "見る" },
+      { en: "TV", ja: "テレビ" }
     ]
   },
 {
@@ -321,11 +328,12 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     step: 3,
     level: "基礎",
     type: "jp-to-en",
-    japanese: "彼はテレビをしません。",
+    japanese: "彼はテレビを見ません。",
     question: "日本語に合う英文はどれ？",
     choices: ["He doesn't watch TV.", "He is not watch TV.", "He watchs TV."],
     answer: 0,
     vocab: [
+      { en: "watch", ja: "見る" },
       { en: "TV", ja: "テレビ" }
     ]
   },
@@ -340,6 +348,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     words: ["TV", "watch", "doesn't", "He"],
     answer: ["He", "doesn't", "watch", "TV"],
     vocab: [
+      { en: "watch", ja: "見る" },
       { en: "TV", ja: "テレビ" }
     ]
   },
@@ -354,7 +363,8 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     choices: ["doesn't", "is", "don't"],
     answer: 0,
     vocab: [
-      { en: "eat", ja: "野菜" }
+      { en: "eat", ja: "食べる" },
+      { en: "vegetables", ja: "野菜" }
     ]
   },
 {
@@ -363,11 +373,12 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     step: 1,
     level: "応用",
     type: "jp-to-en",
-    japanese: "彼は野菜をしません。",
+    japanese: "彼は野菜を食べません。",
     question: "日本語に合う英文はどれ？",
     choices: ["He doesn't eat vegetables.", "He is not eat vegetables.", "He eats vegetables."],
     answer: 0,
     vocab: [
+      { en: "eat", ja: "食べる" },
       { en: "vegetables", ja: "野菜" }
     ]
   },
@@ -382,6 +393,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     words: ["vegetables", "eat", "doesn't", "He"],
     answer: ["He", "doesn't", "eat", "vegetables"],
     vocab: [
+      { en: "eat", ja: "食べる" },
       { en: "vegetables", ja: "野菜" }
     ]
   },
@@ -396,7 +408,8 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     choices: ["doesn't", "is", "don't"],
     answer: 0,
     vocab: [
-      { en: "read", ja: "漫画" }
+      { en: "read", ja: "読む" },
+      { en: "comics", ja: "漫画" }
     ]
   },
 {
@@ -405,11 +418,12 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     step: 2,
     level: "応用",
     type: "jp-to-en",
-    japanese: "彼は漫画をしません。",
+    japanese: "彼は漫画を読みません。",
     question: "日本語に合う英文はどれ？",
     choices: ["He doesn't read comics.", "He is not read comics.", "He reads comics."],
     answer: 0,
     vocab: [
+      { en: "read", ja: "読む" },
       { en: "comics", ja: "漫画" }
     ]
   },
@@ -424,6 +438,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     words: ["comics", "read", "doesn't", "He"],
     answer: ["He", "doesn't", "read", "comics"],
     vocab: [
+      { en: "read", ja: "読む" },
       { en: "comics", ja: "漫画" }
     ]
   },
@@ -438,7 +453,8 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     choices: ["don't", "is", "doesn't"],
     answer: 0,
     vocab: [
-      { en: "study", ja: "英語" }
+      { en: "study", ja: "勉強する" },
+      { en: "English", ja: "英語" }
     ]
   },
 {
@@ -447,11 +463,12 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     step: 3,
     level: "応用",
     type: "jp-to-en",
-    japanese: "私は英語をしません。",
+    japanese: "私は英語を勉強しません。",
     question: "日本語に合う英文はどれ？",
     choices: ["I don't study English.", "I is not study English.", "I studys English."],
     answer: 0,
     vocab: [
+      { en: "study", ja: "勉強する" },
       { en: "English", ja: "英語" }
     ]
   },
@@ -466,6 +483,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     words: ["English", "study", "don't", "I"],
     answer: ["I", "don't", "study", "English"],
     vocab: [
+      { en: "study", ja: "勉強する" },
       { en: "English", ja: "英語" }
     ]
   },
@@ -480,7 +498,8 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     choices: ["doesn't", "is", "don't"],
     answer: 0,
     vocab: [
-      { en: "run", ja: "毎朝走る" }
+      { en: "run", ja: "走る" },
+      { en: "every morning", ja: "毎朝" }
     ]
   },
 {
@@ -489,12 +508,13 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     step: 1,
     level: "発展",
     type: "jp-to-en",
-    japanese: "彼は毎朝走るをしません。",
+    japanese: "彼は毎朝走りません。",
     question: "日本語に合う英文はどれ？",
     choices: ["He doesn't run every morning.", "He is not run every morning.", "He runs every morning."],
     answer: 0,
     vocab: [
-      { en: "every morning", ja: "毎朝走る" }
+      { en: "run", ja: "走る" },
+      { en: "every morning", ja: "毎朝" }
     ]
   },
 {
@@ -508,7 +528,8 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     words: ["every morning", "run", "doesn't", "He"],
     answer: ["He", "doesn't", "run", "every morning"],
     vocab: [
-      { en: "every morning", ja: "毎朝走る" }
+      { en: "run", ja: "走る" },
+      { en: "every morning", ja: "毎朝" }
     ]
   },
 {
@@ -522,7 +543,8 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     choices: ["doesn't", "is", "don't"],
     answer: 0,
     vocab: [
-      { en: "cook", ja: "夕食" }
+      { en: "cook", ja: "作る" },
+      { en: "dinner", ja: "夕食" }
     ]
   },
 {
@@ -531,11 +553,12 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     step: 2,
     level: "発展",
     type: "jp-to-en",
-    japanese: "彼は夕食をしません。",
+    japanese: "彼は夕食を作りません。",
     question: "日本語に合う英文はどれ？",
     choices: ["He doesn't cook dinner.", "He is not cook dinner.", "He cooks dinner."],
     answer: 0,
     vocab: [
+      { en: "cook", ja: "作る" },
       { en: "dinner", ja: "夕食" }
     ]
   },
@@ -550,6 +573,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     words: ["dinner", "cook", "doesn't", "He"],
     answer: ["He", "doesn't", "cook", "dinner"],
     vocab: [
+      { en: "cook", ja: "作る" },
       { en: "dinner", ja: "夕食" }
     ]
   },
