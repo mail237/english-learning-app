@@ -1,7 +1,8 @@
 import type { Question, QuestionStats } from '../types';
 import { getQuestionsBeforeStep, getQuestionsByUnitAndStep } from '../data/questions';
 
-const SPIRAL_RATIO = 0.3;
+/** 前の単元・ステージから混ぜる割合（反復練習） */
+const SPIRAL_RATIO = 0.4;
 
 function getWeight(stats: QuestionStats | undefined): number {
   if (!stats) return 2;

@@ -20,16 +20,26 @@ export default function ListeningView({
   onSelect,
   onReplay,
 }: Props) {
+  const isWakeUp = question.question.includes('覚ま') || question.question.startsWith('⚡');
+  const leadLabel = isWakeUp
+    ? question.question
+    : question.question === '聞こえた英文の意味はどれ？'
+      ? '👂 英文を聞いて答えてね'
+      : question.question;
+
   return (
     <>
-      <div className="listening-box">
-        <p className="listening-label">👂 英文を聞いて答えてね</p>
-        <button className="btn btn-primary btn-large" onClick={onReplay}>
-          🔊 再生する
+      <div className={`listening-box${isWakeUp ? ' listening-box-wake' : ''}`}>
+        <p className={`listening-label${isWakeUp ? ' listening-label-wake' : ''}`}>{leadLabel}</p>
+        <button
+          className={`btn btn-primary btn-large${isWakeUp ? ' btn-listening-wake' : ''}`}
+          onClick={onReplay}
+        >
+          {isWakeUp ? '⚡ もう一度聞く！' : '🔊 再生する'}
         </button>
       </div>
 
-      <p className="question-text">{question.question}</p>
+      {!isWakeUp && <p className="question-text">{question.question}</p>}
 
       {showAnswer && (
         <div className="correct-reveal">
@@ -51,6 +61,7 @@ export default function ListeningView({
         showAnswer={showAnswer}
         disabled={disabled}
         onSelect={onSelect}
+        shuffleKey={question.id}
       />
     </>
   );

@@ -1,11 +1,11 @@
 /** テストで出題する問題数（単元の問題数がこれより少ない場合は全問） */
-export const TEST_QUESTION_COUNT = 40;
+export const TEST_QUESTION_COUNT = 50;
 
 /** 各単元の練習ステージ数 */
 export const STEPS_PER_UNIT = 3;
 
 /** 単語テストの最大出題数（練習で触れた単語から出す） */
-export const VOCAB_TEST_MAX = 15;
+export const VOCAB_TEST_MAX = 18;
 
 /** 発音チェックの最大単語数 */
 export const SPEAKING_MAX = 8;

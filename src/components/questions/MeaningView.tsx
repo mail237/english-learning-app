@@ -49,6 +49,7 @@ export default function MeaningView({
         showAnswer={showAnswer}
         disabled={disabled}
         onSelect={onSelect}
+        shuffleKey={question.id}
       />
     </>
   );

@@ -60,6 +60,7 @@ export default function FillInView({
         showAnswer={showAnswer}
         disabled={disabled}
         onSelect={onSelect}
+        shuffleKey={question.id}
       />
     </>
   );

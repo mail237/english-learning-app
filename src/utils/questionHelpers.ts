@@ -184,3 +184,16 @@ export function shuffleArray<T>(array: T[]): T[] {
   }
   return copy;
 }
+
+/** 選択肢の並びを毎回少し変える（正解インデックスも追従） */
+export function shuffleChoicesForDisplay(
+  choices: string[],
+  answerIndex: number,
+): { choices: string[]; answerIndex: number } {
+  const tagged = choices.map((text, originalIndex) => ({ text, originalIndex }));
+  const shuffled = shuffleArray(tagged);
+  return {
+    choices: shuffled.map((t) => t.text),
+    answerIndex: shuffled.findIndex((t) => t.originalIndex === answerIndex),
+  };
+}

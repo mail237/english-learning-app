@@ -48,6 +48,7 @@ export default function ErrorDetectionView({
         disabled={disabled}
         onSelect={onSelect}
         variant="sentence"
+        shuffleKey={question.id}
       />
     </>
   );

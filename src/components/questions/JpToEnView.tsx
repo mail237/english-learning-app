@@ -50,6 +50,7 @@ export default function JpToEnView({
         disabled={disabled}
         onSelect={onSelect}
         variant="sentence"
+        shuffleKey={question.id}
       />
     </>
   );

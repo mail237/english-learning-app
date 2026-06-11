@@ -1,4 +1,6 @@
+import { useMemo } from 'react';
 import type { Feedback } from '../../types';
+import { shuffleArray } from '../../utils/questionHelpers';
 
 interface Props {
   choices: string[];
@@ -9,6 +11,8 @@ interface Props {
   disabled: boolean;
   onSelect: (index: number) => void;
   variant?: 'default' | 'sentence';
+  /** 指定すると選択肢の並びをランダム化（同じ問題でも毎回ちがう） */
+  shuffleKey?: string;
 }
 
 export default function ChoiceButtons({
@@ -20,23 +24,40 @@ export default function ChoiceButtons({
   disabled,
   onSelect,
   variant = 'default',
+  shuffleKey,
 }: Props) {
+  const display = useMemo(() => {
+    if (!shuffleKey) {
+      return choices.map((text, originalIndex) => ({ text, originalIndex }));
+    }
+    return shuffleArray(choices.map((text, originalIndex) => ({ text, originalIndex })));
+  }, [shuffleKey, choices, answer]);
+
+  const selectedDisplayIndex =
+    selected !== null && shuffleKey
+      ? display.findIndex((d) => d.originalIndex === selected)
+      : selected;
+
+  const answerDisplayIndex = shuffleKey
+    ? display.findIndex((d) => d.originalIndex === answer)
+    : answer;
+
   return (
     <div className="choices">
-      {choices.map((choice, i) => (
+      {display.map((item, i) => (
         <button
-          key={i}
+          key={`${shuffleKey ?? 'fixed'}-${item.text}-${i}`}
           className={`btn btn-choice ${variant === 'sentence' ? 'btn-choice-sentence' : ''} ${
-            (showAnswer || feedback === 'correct') && i === answer
+            (showAnswer || feedback === 'correct') && i === answerDisplayIndex
               ? 'highlight'
-              : selected !== null && i === selected && i !== answer
+              : selectedDisplayIndex !== null && i === selectedDisplayIndex && i !== answerDisplayIndex
                 ? 'wrong'
                 : ''
           }`}
-          onClick={() => onSelect(i)}
+          onClick={() => onSelect(item.originalIndex)}
           disabled={disabled || feedback !== 'none'}
         >
-          {choice}
+          {item.text}
         </button>
       ))}
     </div>

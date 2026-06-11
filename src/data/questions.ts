@@ -2,6 +2,7 @@ import type { Question } from '../types';
 import { ADDITIONAL_QUESTIONS } from './questions/additional';
 import { ADDITIONAL_QUESTIONS_2 } from './questions/additional2';
 import { QA_NEGATIVE_QUESTIONS } from './questions/qaNegative';
+import { REPETITION_VARIATION_QUESTIONS } from './questions/repetitionVariations';
 
 const BASE_QUESTIONS: Question[] = [
   // Unit 1 - Step 1
@@ -84,6 +85,7 @@ export const QUESTIONS: Question[] = [
   ...ADDITIONAL_QUESTIONS,
   ...ADDITIONAL_QUESTIONS_2,
   ...QA_NEGATIVE_QUESTIONS,
+  ...REPETITION_VARIATION_QUESTIONS,
 ];
 
 export function getQuestionsByUnit(unit: number): Question[] {

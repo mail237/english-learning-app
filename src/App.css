@@ -516,6 +516,27 @@ body {
   font-weight: 600;
 }
 
+.listening-box-wake {
+  background: linear-gradient(135deg, #fff8e6 0%, #ffe8cc 100%);
+  border: 2px solid #faad14;
+}
+
+.listening-label-wake {
+  color: #d48806;
+  font-size: 22px;
+}
+
+.btn-listening-wake {
+  background: #fa8c16;
+  border-color: #fa8c16;
+  font-weight: 700;
+}
+
+.btn-listening-wake:hover {
+  background: #d46b08;
+  border-color: #d46b08;
+}
+
 /* Complete screen */
 .celebration {
   text-align: center;
