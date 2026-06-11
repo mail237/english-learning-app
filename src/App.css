@@ -592,6 +592,15 @@ body {
   margin-bottom: 24px;
 }
 
+.results-fail-banner {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+  font-weight: 700;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
 .score-circle {
   width: 160px;
   height: 160px;

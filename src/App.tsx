@@ -24,6 +24,7 @@ import PracticeMode from './components/PracticeMode';
 import PracticeComplete from './components/PracticeComplete';
 import StepComplete from './components/StepComplete';
 import { STEPS_PER_UNIT } from './data/constants';
+import { isTestPassed } from './utils/testPass';
 import { getActiveStep, isAllPracticeDone } from './utils/unitProgress';
 import TestMode from './components/TestMode';
 import VocabTestMode from './components/VocabTestMode';
@@ -230,26 +231,38 @@ function App() {
       overallScore,
       speakingPending: pending,
       speakingSkipped: skipped,
+      testPassed: isTestPassed({ overallScore }),
     };
 
     setFullResult(result);
+
+    const prevProgress = student.unitProgress[currentUnit];
+    const unitUpdate = result.testPassed
+      ? {
+          status: 'テスト済' as const,
+          completedStep: STEPS_PER_UNIT,
+          practiceAccuracy: prevProgress?.practiceAccuracy ?? practiceAccuracy,
+          testAccuracy: result.testAccuracy,
+          testDate: new Date().toISOString(),
+        }
+      : {
+          status: '練習完了' as const,
+          completedStep: STEPS_PER_UNIT,
+          practiceAccuracy: prevProgress?.practiceAccuracy ?? practiceAccuracy,
+          testAccuracy: result.testAccuracy,
+        };
 
     const updated: StudentData = {
       ...student,
       unitProgress: {
         ...student.unitProgress,
-        [currentUnit]: {
-          status: 'テスト済',
-          practiceAccuracy: student.unitProgress[currentUnit]?.practiceAccuracy,
-          testAccuracy: result.testAccuracy,
-          testDate: new Date().toISOString(),
-        },
+        [currentUnit]: unitUpdate,
       },
     };
     setStudent(updated);
     saveStudent(updated);
 
-    if (!pending) {
+    if (!pending && result.testPassed) {
       saveSession({
         studentName: student.name,
         unit: currentUnit,
@@ -289,6 +302,14 @@ function App() {
       return;
     }
 
+    const vocabAcc =
+      fullResult.vocabTotal === 0 ? fullResult.testAccuracy : fullResult.vocabAccuracy;
+    const projectedOverall = Math.round((fullResult.testAccuracy + vocabAcc) / 2);
+    if (!isTestPassed({ overallScore: projectedOverall })) {
+      finalizeTestWithSpeaking([], 0, { skipped: true, skippedTotal: items.length });
+      return;
+    }
+
     const batch: PendingSpeakingBatch = {
       id: createPendingBatchId(),
       unit: currentUnit,
@@ -321,15 +342,14 @@ function App() {
     setStudent(updated);
     saveStudent(updated);
 
-    const vocabAcc =
-      fullResult.vocabTotal === 0 ? fullResult.testAccuracy : fullResult.vocabAccuracy;
     setFullResult({
       ...fullResult,
       speakingPassed: 0,
       speakingTotal: items.length,
       speakingAccuracy: 0,
-      overallScore: Math.round((fullResult.testAccuracy + vocabAcc) / 2),
+      overallScore: projectedOverall,
       speakingPending: true,
+      testPassed: true,
     });
     setScreen('testResults');
   };
@@ -473,6 +493,8 @@ function App() {
         <TestResults
           result={fullResult}
           onFinish={handleFinish}
+          onBackToUnits={handleBackToUnits}
+          onRetryTest={handleTestUnlock}
           onReview={() =>
             startReview(questionsFromWrongAnswers(fullResult.wrongTestAnswers), 'testResults')
           }

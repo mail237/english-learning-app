@@ -201,6 +201,8 @@ export interface FullTestResult {
   wrongTestAnswers: TestAnswer[];
   speakingPending?: boolean;
   speakingSkipped?: boolean;
+  /** 合格ラインを満たしたか（次の単元解放の判定） */
+  testPassed?: boolean;
 }
 
 export type Feedback = 'none' | 'correct' | 'incorrect';

@@ -73,7 +73,11 @@ export default function UnitSelection({
                 {!unlocked ? '🔒 前の単元をクリアしよう' : status}
               </div>
               {progress?.testAccuracy !== undefined && (
-                <div className="unit-score">テスト {progress.testAccuracy}%</div>
+                <div className="unit-score">
+                  {status === '練習完了'
+                    ? `前回テスト ${progress.testAccuracy}% → 再チャレンジ`
+                    : `テスト ${progress.testAccuracy}%`}
+                </div>
               )}
             </button>
           );

@@ -1,4 +1,6 @@
 import type { FullTestResult } from '../types';
+import { TEST_PASS_SCORE } from '../data/constants';
+import { isTestPassed } from '../utils/testPass';
 import {
   getCorrectAnswerText,
   getReviewPrompt,
@@ -9,10 +11,18 @@ import {
 interface Props {
   result: FullTestResult;
   onFinish: () => void;
+  onBackToUnits?: () => void;
+  onRetryTest?: () => void;
   onReview?: () => void;
 }
 
-export default function TestResults({ result, onFinish, onReview }: Props) {
+export default function TestResults({
+  result,
+  onFinish,
+  onBackToUnits,
+  onRetryTest,
+  onReview,
+}: Props) {
   const {
     testCorrect,
     testTotal,
@@ -29,24 +39,32 @@ export default function TestResults({ result, onFinish, onReview }: Props) {
     speakingSkipped,
   } = result;
 
-  const gradeClass = overallScore >= 80 ? 'great' : overallScore >= 60 ? 'good' : 'retry';
-  const gradeMessage =
-    overallScore >= 80
+  const passed = result.testPassed ?? isTestPassed(result);
+
+  const gradeClass = passed
+    ? overallScore >= 80
+      ? 'great'
+      : 'good'
+    : 'retry';
+  const gradeMessage = passed
+    ? overallScore >= 80
       ? 'すばらしい！ 🌟'
-      : overallScore >= 60
-        ? 'よくがんばったね！'
-        : '復習してもう一度チャレンジしよう';
+      : 'よくがんばったね！'
+    : `合格には ${TEST_PASS_SCORE}点以上が必要だよ。復習してもう一度！`;
 
   return (
     <div className="screen results-screen">
       <div className="results-header">
         <h2>テスト結果</h2>
+        {!passed && (
+          <p className="results-fail-banner">❌ 不合格 — 次の単元には進めません</p>
+        )}
         <div className={`score-circle ${gradeClass}`}>
           <span className="score-number">{overallScore}</span>
           <span className="score-unit">点</span>
         </div>
         <p className="score-message">{gradeMessage}</p>
-        <p className="score-subtitle">総合評価</p>
+        <p className="score-subtitle">総合評価（合格ライン {TEST_PASS_SCORE}点）</p>
       </div>
 
       <div className="results-summary">
@@ -105,7 +123,25 @@ export default function TestResults({ result, onFinish, onReview }: Props) {
         </button>
       )}
 
-      <button className="btn btn-primary btn-large" onClick={onFinish}>
+      {!passed && onRetryTest && (
+        <button className="btn btn-primary btn-large" onClick={onRetryTest}>
+          もう一度テストをうける
+        </button>
+      )}
+
+      {passed && onBackToUnits && (
+        <button className="btn btn-primary btn-large" onClick={onBackToUnits}>
+          つぎの単元へ
+        </button>
+      )}
+
+      {!passed && onBackToUnits && (
+        <button className="btn btn-secondary btn-large" onClick={onBackToUnits}>
+          単元選択にもどる
+        </button>
+      )}
+
+      <button className="btn btn-text" onClick={onFinish}>
         おわる
       </button>
     </div>
