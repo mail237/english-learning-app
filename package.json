@@ -9,7 +9,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite --host",
-    "preview:ipad": "vite preview --host"
+    "preview:ipad": "vite preview --host",
+    "audit:choices": "node tools/audit-duplicate-choices.mjs"
   },
   "dependencies": {
     "react": "^19.2.6",

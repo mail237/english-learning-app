@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { Feedback } from '../../types';
-import { shuffleArray } from '../../utils/questionHelpers';
+import { dedupeChoicesForDisplay, shuffleArray } from '../../utils/questionHelpers';
 
 interface Props {
   choices: string[];
@@ -26,12 +26,16 @@ export default function ChoiceButtons({
   variant = 'default',
   shuffleKey,
 }: Props) {
+  const { dedupedChoices, dedupedAnswer } = useMemo(() => {
+    const { choices: nextChoices, answerIndex } = dedupeChoicesForDisplay(choices, answer);
+    return { dedupedChoices: nextChoices, dedupedAnswer: answerIndex };
+  }, [choices, answer]);
+
   const display = useMemo(() => {
-    if (!shuffleKey) {
-      return choices.map((text, originalIndex) => ({ text, originalIndex }));
-    }
-    return shuffleArray(choices.map((text, originalIndex) => ({ text, originalIndex })));
-  }, [shuffleKey, choices, answer]);
+    const tagged = dedupedChoices.map((text, originalIndex) => ({ text, originalIndex }));
+    if (!shuffleKey) return tagged;
+    return shuffleArray(tagged);
+  }, [shuffleKey, dedupedChoices]);
 
   const selectedDisplayIndex =
     selected !== null && shuffleKey
@@ -39,8 +43,8 @@ export default function ChoiceButtons({
       : selected;
 
   const answerDisplayIndex = shuffleKey
-    ? display.findIndex((d) => d.originalIndex === answer)
-    : answer;
+    ? display.findIndex((d) => d.originalIndex === dedupedAnswer)
+    : dedupedAnswer;
 
   return (
     <div className="choices">

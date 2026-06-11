@@ -8,6 +8,7 @@ import type {
 import { SPEAKING_MAX, VOCAB_TEST_MAX } from '../data/constants';
 import { getQuestionsByUnit } from '../data/questions';
 import { getVocabForQuestion } from '../data/vocab';
+import { dedupeChoicesForDisplay } from './questionHelpers';
 
 function shuffle<T>(array: T[]): T[] {
   const copy = [...array];
@@ -60,14 +61,32 @@ function pickDistractors(
   correct: VocabEntry,
   count: number,
   pick: 'en' | 'ja',
+  correctChoice: string,
 ): string[] {
   const others = shuffle(
     pool.filter((e) => e.en.toLowerCase() !== correct.en.toLowerCase()),
   );
-  const distractors = others.slice(0, count).map((e) => (pick === 'en' ? e.en : e.ja));
+  const distractors: string[] = [];
+  const used = new Set<string>([correctChoice.trim().toLowerCase()]);
 
+  for (const e of others) {
+    if (distractors.length >= count) break;
+    const val = pick === 'en' ? e.en : e.ja;
+    const key = val.trim().toLowerCase();
+    if (!used.has(key)) {
+      used.add(key);
+      distractors.push(val);
+    }
+  }
+
+  let filler = 1;
   while (distractors.length < count) {
-    distractors.push(pick === 'en' ? 'word' : '単語');
+    const val = pick === 'en' ? `option ${filler}` : `ほかの語${filler}`;
+    filler += 1;
+    if (!used.has(val.toLowerCase())) {
+      used.add(val.toLowerCase());
+      distractors.push(val);
+    }
   }
 
   return distractors;
@@ -81,8 +100,9 @@ function buildItem(
 ): VocabTestItem {
   const isEnToJa = direction === 'en-to-ja';
   const correctChoice = isEnToJa ? entry.ja : entry.en;
-  const distractors = pickDistractors(pool, entry, 2, isEnToJa ? 'ja' : 'en');
-  const choices = shuffle([correctChoice, ...distractors]);
+  const distractors = pickDistractors(pool, entry, 2, isEnToJa ? 'ja' : 'en', correctChoice);
+  const deduped = dedupeChoicesForDisplay([correctChoice, ...distractors], 0);
+  const choices = shuffle(deduped.choices);
   const answer = choices.indexOf(correctChoice);
 
   return {

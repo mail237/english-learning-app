@@ -176,6 +176,38 @@ export function getTypeLabel(type: Question['type']): string {
   return labels[type];
 }
 
+/** 選択肢の比較用（大文字小文字・末尾の ?!. を無視） */
+export function normalizeChoiceKey(choice: string): string {
+  return choice.trim().toLowerCase().replace(/[.?!]+$/g, '');
+}
+
+/** 表示前に重複・類似選択肢を除去（正解インデックスを追従） */
+export function dedupeChoicesForDisplay(
+  choices: string[],
+  answerIndex: number,
+): { choices: string[]; answerIndex: number } {
+  const result: string[] = [];
+  const keyToIndex = new Map<string, number>();
+  let newAnswerIndex = answerIndex;
+
+  for (let i = 0; i < choices.length; i++) {
+    const text = choices[i];
+    const key = normalizeChoiceKey(text);
+    const existing = keyToIndex.get(key);
+
+    if (existing === undefined) {
+      keyToIndex.set(key, result.length);
+      result.push(text);
+      if (i === answerIndex) newAnswerIndex = result.length - 1;
+    } else if (i === answerIndex) {
+      newAnswerIndex = existing;
+      result[existing] = text;
+    }
+  }
+
+  return { choices: result, answerIndex: newAnswerIndex };
+}
+
 export function shuffleArray<T>(array: T[]): T[] {
   const copy = [...array];
   for (let i = copy.length - 1; i > 0; i--) {

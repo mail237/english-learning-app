@@ -3,6 +3,13 @@
  * 実行: node tools/generate-repetition-variations.mjs
  */
 import fs from 'fs';
+import {
+  assertUniqueChoices,
+  errorDetChoices,
+  jpToEnChoices,
+  meaningChoices,
+  modalJpToEnChoices,
+} from './choice-helpers.mjs';
 
 let id = 537;
 
@@ -38,93 +45,6 @@ function listening(unit, step, level, sentence, choices, answer, vocab, question
 }
 function errorDet(unit, step, level, question, choices, answer, vocab) {
   return { id: qid(), unit, step, level, type: 'error-detection', question, choices, answer, vocab };
-}
-
-/** 選択肢の重複を除去（正解は先頭） */
-function uniqueChoices(correct, ...rest) {
-  const out = [correct];
-  for (const c of rest) {
-    if (c && c !== correct && !out.includes(c)) out.push(c);
-  }
-  return out;
-}
-
-/** Do/Does 疑問文の誤答（be動詞に置き換え） */
-function wrongAuxQuestion(en) {
-  if (/\bDoes\b/.test(en)) return en.replace(/\bDoes\b/, 'Is');
-  if (/\bdoes\b/.test(en)) return en.replace(/\bdoes\b/, 'is');
-  if (/\bDo\b/.test(en)) return en.replace(/\bDo\b/, 'Are');
-  if (/\bdo\b/.test(en)) return en.replace(/\bdo\b/, 'are');
-  return null;
-}
-
-function jpToEnChoices(en) {
-  const wrongAux = wrongAuxQuestion(en);
-  const wrongPunct = en.endsWith('?') ? `${en.slice(0, -1)}.` : `${en}?`;
-  const swaps = [
-    [/\byou\b/i, 'we'],
-    [/\bhe\b/i, 'she'],
-    [/\bshe\b/i, 'he'],
-    [/\bthey\b/i, 'we'],
-    [/\bI\b/, 'You'],
-  ];
-  const extras = [wrongAux, wrongPunct];
-  for (const [re, rep] of swaps) {
-    if (re.test(en)) {
-      extras.push(en.replace(re, rep));
-      break;
-    }
-  }
-  return uniqueChoices(en, ...extras).slice(0, 3);
-}
-
-function errorDetChoices(en) {
-  const wrongAux = wrongAuxQuestion(en);
-  if (wrongAux) return [en, wrongAux];
-  const wrongPunct = en.endsWith('?') ? `${en.slice(0, -1)}.` : `${en}?`;
-  return uniqueChoices(en, wrongPunct);
-}
-
-function meaningChoices(ja) {
-  const candidates = uniqueChoices(
-    ja,
-    ja.replace(/ています/g, 'ていません'),
-    ja.replace(/います/g, 'いません'),
-    ja.replace(/しています/g, 'していません'),
-    ja.replace(/です/g, 'ではありません'),
-    ja.replace(/した/g, 'してい'),
-  );
-  return candidates.slice(0, 3);
-}
-
-function modalJpToEnChoices(correct, wrong) {
-  const modals = ['can', 'must', 'may', 'should'];
-  const lower = correct.toLowerCase();
-  const used = modals.filter((m) => lower.includes(m));
-  const alt = modals.find((m) => !used.includes(m) && !wrong.toLowerCase().includes(m));
-  let third = null;
-  if (alt) {
-    for (const m of used) {
-      const re = new RegExp(`\\b${m}\\b`, 'i');
-      if (re.test(correct)) {
-        third = correct.replace(re, (match) =>
-          match[0] === match[0].toUpperCase()
-            ? alt.charAt(0).toUpperCase() + alt.slice(1)
-            : alt,
-        );
-        break;
-      }
-    }
-  }
-  return uniqueChoices(correct, wrong, third).slice(0, 3);
-}
-
-function assertUniqueChoices(q) {
-  if (!q.choices) return;
-  const uniq = new Set(q.choices);
-  if (uniq.size !== q.choices.length) {
-    throw new Error(`${q.id}: duplicate choices ${JSON.stringify(q.choices)}`);
-  }
 }
 
 const questions = [];

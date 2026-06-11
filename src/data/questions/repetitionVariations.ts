@@ -561,7 +561,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "jp-to-en",
     japanese: "あなたは猫が好きですか。",
     question: "日本語に合う英文はどれ？",
-    choices: ["Do you like cats?", "Are you like cats?", "Do you like cats."],
+    choices: ["Do you like cats?", "Are you like cats?", "Do you like dogs?"],
     answer: 0,
     vocab: [
       { en: "cats", ja: "猫" }
@@ -588,7 +588,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "jp-to-en",
     japanese: "彼はテニスをしますか。",
     question: "日本語に合う英文はどれ？",
-    choices: ["Does he play tennis?", "Is he play tennis?", "Does he play tennis."],
+    choices: ["Does he play tennis?", "Is he play tennis?", "Does he play soccer?"],
     answer: 0,
     vocab: [
       { en: "tennis", ja: "テニス" }
@@ -615,7 +615,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "jp-to-en",
     japanese: "彼らは英語を話しますか。",
     question: "日本語に合う英文はどれ？",
-    choices: ["Do they speak English?", "Are they speak English?", "Do they speak English."],
+    choices: ["Do they speak English?", "Are they speak English?", "Do they speak Japanese?"],
     answer: 0,
     vocab: [
       { en: "English", ja: "英語" }
@@ -642,7 +642,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "jp-to-en",
     japanese: "どこに住んでいますか。",
     question: "日本語に合う英文はどれ？",
-    choices: ["Where do you live?", "Where are you live?", "Where do you live."],
+    choices: ["Where do you live?", "Where are you live?", "Where do you work?"],
     answer: 0,
     vocab: [
       { en: "live", ja: "住む" }
@@ -669,7 +669,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "jp-to-en",
     japanese: "彼女は何がほしいですか。",
     question: "日本語に合う英文はどれ？",
-    choices: ["What does she want?", "What is she want?", "What does she want."],
+    choices: ["What does she want?", "What is she want?", "What does she need?"],
     answer: 0,
     vocab: [
       { en: "want", ja: "ほしい" }
@@ -696,7 +696,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "jp-to-en",
     japanese: "バスはいつ来ますか。",
     question: "日本語に合う英文はどれ？",
-    choices: ["When does the bus come?", "When is the bus come?", "When does the bus come."],
+    choices: ["When does the bus come?", "When is the bus come?", "When does the train come?"],
     answer: 0,
     vocab: [
       { en: "bus", ja: "バス" }
