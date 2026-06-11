@@ -2,7 +2,7 @@
 export const TEST_QUESTION_COUNT = 50;
 
 /** テスト合格ライン（総合点）。これ未満は次の単元に進めない */
-export const TEST_PASS_SCORE = 60;
+export const TEST_PASS_SCORE = 80;
 
 /** 各単元の練習ステージ数 */
 export const STEPS_PER_UNIT = 3;
