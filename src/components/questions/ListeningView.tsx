@@ -1,4 +1,5 @@
 import type { ListeningQuestion, Feedback } from '../../types';
+import { speakWakeUpListening } from '../../utils/speech';
 import ChoiceButtons from './ChoiceButtons';
 
 interface Props {
@@ -33,9 +34,15 @@ export default function ListeningView({
         <p className={`listening-label${isWakeUp ? ' listening-label-wake' : ''}`}>{leadLabel}</p>
         <button
           className={`btn btn-primary btn-large${isWakeUp ? ' btn-listening-wake' : ''}`}
-          onClick={onReplay}
+          onClick={() => {
+            if (isWakeUp) {
+              void speakWakeUpListening(question.sentence);
+            } else {
+              onReplay();
+            }
+          }}
         >
-          {isWakeUp ? '⚡ もう一度聞く！' : '🔊 再生する'}
+          {isWakeUp ? '🐓 こけこっこー！' : '🔊 再生する'}
         </button>
       </div>
 

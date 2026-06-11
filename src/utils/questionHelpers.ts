@@ -91,6 +91,13 @@ export function formatFillInSentence(sentence: string, word: string): string {
   return filled;
 }
 
+export function isWakeUpListeningQuestion(question: Question): boolean {
+  return (
+    question.type === 'listening' &&
+    (question.question.includes('覚ま') || question.question.startsWith('⚡'))
+  );
+}
+
 export function shouldAutoSpeak(question: Question): boolean {
   return question.type !== 'listening' && question.type !== 'jp-to-en';
 }

@@ -142,3 +142,59 @@ export function stopSpeech(): void {
     speechSynthesis.cancel();
   }
 }
+
+let roosterContext: AudioContext | null = null;
+
+/** 眠気覚まし用 — こけこっこー（Web Audio で合成） */
+export function playRoosterCrow(): Promise<void> {
+  stopSpeech();
+  if (roosterContext) {
+    void roosterContext.close().catch(() => undefined);
+    roosterContext = null;
+  }
+
+  const Ctx = window.AudioContext ?? (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!Ctx) return Promise.resolve();
+
+  const ctx = new Ctx();
+  roosterContext = ctx;
+  const t0 = ctx.currentTime;
+
+  const crow = [
+    { freq: 520, start: 0.0, dur: 0.14, vol: 0.22 },
+    { freq: 720, start: 0.16, dur: 0.14, vol: 0.26 },
+    { freq: 980, start: 0.32, dur: 0.18, vol: 0.3 },
+    { freq: 1180, start: 0.52, dur: 0.22, vol: 0.34 },
+    { freq: 920, start: 0.76, dur: 0.28, vol: 0.28 },
+    { freq: 640, start: 1.06, dur: 0.42, vol: 0.2 },
+  ];
+
+  for (const { freq, start, dur, vol } of crow) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(freq, t0 + start);
+    gain.gain.setValueAtTime(0.001, t0 + start);
+    gain.gain.exponentialRampToValueAtTime(vol, t0 + start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, t0 + start + dur);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(t0 + start);
+    osc.stop(t0 + start + dur + 0.02);
+  }
+
+  return new Promise((resolve) => {
+    window.setTimeout(() => {
+      void ctx.close().catch(() => undefined);
+      if (roosterContext === ctx) roosterContext = null;
+      resolve();
+    }, 1550);
+  });
+}
+
+/** こけこっこー → 英文リスニング */
+export async function speakWakeUpListening(sentence: string): Promise<void> {
+  await playRoosterCrow();
+  await new Promise((r) => setTimeout(r, 180));
+  await speakSentence(sentence);
+}
