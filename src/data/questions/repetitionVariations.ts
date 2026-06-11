@@ -588,7 +588,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "jp-to-en",
     japanese: "彼はテニスをしますか。",
     question: "日本語に合う英文はどれ？",
-    choices: ["Does he play tennis?", "Arees he play tennis?", "Does he play tennis."],
+    choices: ["Does he play tennis?", "Is he play tennis?", "Does he play tennis."],
     answer: 0,
     vocab: [
       { en: "tennis", ja: "テニス" }
@@ -601,7 +601,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     level: "応用",
     type: "error-detection",
     question: "「彼はテニスをしますか。」正しい英文はどっち？",
-    choices: ["Does he play tennis?", "Arees he play tennis?"],
+    choices: ["Does he play tennis?", "Is he play tennis?"],
     answer: 0,
     vocab: [
       { en: "tennis", ja: "テニス" }
@@ -642,7 +642,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "jp-to-en",
     japanese: "どこに住んでいますか。",
     question: "日本語に合う英文はどれ？",
-    choices: ["Where do you live?", "Where do you live?", "Where do you live."],
+    choices: ["Where do you live?", "Where are you live?", "Where do you live."],
     answer: 0,
     vocab: [
       { en: "live", ja: "住む" }
@@ -655,7 +655,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     level: "応用",
     type: "error-detection",
     question: "「どこに住んでいますか。」正しい英文はどっち？",
-    choices: ["Where do you live?", "Where do you live?"],
+    choices: ["Where do you live?", "Where are you live?"],
     answer: 0,
     vocab: [
       { en: "live", ja: "住む" }
@@ -669,7 +669,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "jp-to-en",
     japanese: "彼女は何がほしいですか。",
     question: "日本語に合う英文はどれ？",
-    choices: ["What does she want?", "What does she want?", "What does she want."],
+    choices: ["What does she want?", "What is she want?", "What does she want."],
     answer: 0,
     vocab: [
       { en: "want", ja: "ほしい" }
@@ -682,7 +682,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     level: "応用",
     type: "error-detection",
     question: "「彼女は何がほしいですか。」正しい英文はどっち？",
-    choices: ["What does she want?", "What does she want?"],
+    choices: ["What does she want?", "What is she want?"],
     answer: 0,
     vocab: [
       { en: "want", ja: "ほしい" }
@@ -696,7 +696,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "jp-to-en",
     japanese: "バスはいつ来ますか。",
     question: "日本語に合う英文はどれ？",
-    choices: ["When does the bus come?", "When does the bus come?", "When does the bus come."],
+    choices: ["When does the bus come?", "When is the bus come?", "When does the bus come."],
     answer: 0,
     vocab: [
       { en: "bus", ja: "バス" }
@@ -709,7 +709,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     level: "応用",
     type: "error-detection",
     question: "「バスはいつ来ますか。」正しい英文はどっち？",
-    choices: ["When does the bus come?", "When does the bus come?"],
+    choices: ["When does the bus come?", "When is the bus come?"],
     answer: 0,
     vocab: [
       { en: "bus", ja: "バス" }
@@ -723,7 +723,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "meaning",
     sentence: "I am studying English.",
     question: "どういう意味？",
-    choices: ["英語を勉強しています。", "英語を勉強したます。", "英語を勉強してません。"],
+    choices: ["英語を勉強しています。", "英語を勉強していません。"],
     answer: 0,
     showText: true,
     vocab: [
@@ -752,7 +752,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "meaning",
     sentence: "She is cooking dinner.",
     question: "どういう意味？",
-    choices: ["夕食を作っています。", "夕食を作っています。", "夕食を作ってません。"],
+    choices: ["夕食を作っています。", "夕食を作っていません。"],
     answer: 0,
     showText: true,
     vocab: [
@@ -781,7 +781,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "meaning",
     sentence: "They are playing soccer.",
     question: "どういう意味？",
-    choices: ["サッカーをしています。", "サッカーをしたます。", "サッカーをしてません。"],
+    choices: ["サッカーをしています。", "サッカーをしていません。"],
     answer: 0,
     showText: true,
     vocab: [
@@ -810,7 +810,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "meaning",
     sentence: "He is reading a book.",
     question: "どういう意味？",
-    choices: ["本を読んでいます。", "本を読んでいます。", "本を読んでません。"],
+    choices: ["本を読んでいます。", "本を読んでいません。"],
     answer: 0,
     showText: true,
     vocab: [
@@ -839,7 +839,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "meaning",
     sentence: "We are listening to music.",
     question: "どういう意味？",
-    choices: ["音楽を聞いています。", "音楽を聞いています。", "音楽を聞いてません。"],
+    choices: ["音楽を聞いています。", "音楽を聞いていません。"],
     answer: 0,
     showText: true,
     vocab: [
@@ -910,7 +910,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "jp-to-en",
     japanese: "泳げますか。",
     question: "日本語に合う英文はどれ？",
-    choices: ["Can you swim?", "Must you swim?", "Can you swim?"],
+    choices: ["Can you swim?", "Must you swim?", "May you swim?"],
     answer: 0,
     vocab: [
       { en: "modal", ja: "助動詞" }
@@ -938,7 +938,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "jp-to-en",
     japanese: "ここに座ってもいいですか。",
     question: "日本語に合う英文はどれ？",
-    choices: ["May I sit here?", "May I stand here?", "May I sit here?"],
+    choices: ["May I sit here?", "May I stand here?", "Can I sit here?"],
     answer: 0,
     vocab: [
       { en: "modal", ja: "助動詞" }
@@ -966,7 +966,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "jp-to-en",
     japanese: "他人を助けるべきだ。",
     question: "日本語に合う英文はどれ？",
-    choices: ["We should help others.", "We can help others.", "We should help others."],
+    choices: ["We should help others.", "We can help others.", "We must help others."],
     answer: 0,
     vocab: [
       { en: "modal", ja: "助動詞" }

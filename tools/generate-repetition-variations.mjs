@@ -40,6 +40,93 @@ function errorDet(unit, step, level, question, choices, answer, vocab) {
   return { id: qid(), unit, step, level, type: 'error-detection', question, choices, answer, vocab };
 }
 
+/** 選択肢の重複を除去（正解は先頭） */
+function uniqueChoices(correct, ...rest) {
+  const out = [correct];
+  for (const c of rest) {
+    if (c && c !== correct && !out.includes(c)) out.push(c);
+  }
+  return out;
+}
+
+/** Do/Does 疑問文の誤答（be動詞に置き換え） */
+function wrongAuxQuestion(en) {
+  if (/\bDoes\b/.test(en)) return en.replace(/\bDoes\b/, 'Is');
+  if (/\bdoes\b/.test(en)) return en.replace(/\bdoes\b/, 'is');
+  if (/\bDo\b/.test(en)) return en.replace(/\bDo\b/, 'Are');
+  if (/\bdo\b/.test(en)) return en.replace(/\bdo\b/, 'are');
+  return null;
+}
+
+function jpToEnChoices(en) {
+  const wrongAux = wrongAuxQuestion(en);
+  const wrongPunct = en.endsWith('?') ? `${en.slice(0, -1)}.` : `${en}?`;
+  const swaps = [
+    [/\byou\b/i, 'we'],
+    [/\bhe\b/i, 'she'],
+    [/\bshe\b/i, 'he'],
+    [/\bthey\b/i, 'we'],
+    [/\bI\b/, 'You'],
+  ];
+  const extras = [wrongAux, wrongPunct];
+  for (const [re, rep] of swaps) {
+    if (re.test(en)) {
+      extras.push(en.replace(re, rep));
+      break;
+    }
+  }
+  return uniqueChoices(en, ...extras).slice(0, 3);
+}
+
+function errorDetChoices(en) {
+  const wrongAux = wrongAuxQuestion(en);
+  if (wrongAux) return [en, wrongAux];
+  const wrongPunct = en.endsWith('?') ? `${en.slice(0, -1)}.` : `${en}?`;
+  return uniqueChoices(en, wrongPunct);
+}
+
+function meaningChoices(ja) {
+  const candidates = uniqueChoices(
+    ja,
+    ja.replace(/ています/g, 'ていません'),
+    ja.replace(/います/g, 'いません'),
+    ja.replace(/しています/g, 'していません'),
+    ja.replace(/です/g, 'ではありません'),
+    ja.replace(/した/g, 'してい'),
+  );
+  return candidates.slice(0, 3);
+}
+
+function modalJpToEnChoices(correct, wrong) {
+  const modals = ['can', 'must', 'may', 'should'];
+  const lower = correct.toLowerCase();
+  const used = modals.filter((m) => lower.includes(m));
+  const alt = modals.find((m) => !used.includes(m) && !wrong.toLowerCase().includes(m));
+  let third = null;
+  if (alt) {
+    for (const m of used) {
+      const re = new RegExp(`\\b${m}\\b`, 'i');
+      if (re.test(correct)) {
+        third = correct.replace(re, (match) =>
+          match[0] === match[0].toUpperCase()
+            ? alt.charAt(0).toUpperCase() + alt.slice(1)
+            : alt,
+        );
+        break;
+      }
+    }
+  }
+  return uniqueChoices(correct, wrong, third).slice(0, 3);
+}
+
+function assertUniqueChoices(q) {
+  if (!q.choices) return;
+  const uniq = new Set(q.choices);
+  if (uniq.size !== q.choices.length) {
+    throw new Error(`${q.id}: duplicate choices ${JSON.stringify(q.choices)}`);
+  }
+}
+
 const questions = [];
 
 // ── Unit 1 バリエーション（be動詞）──
@@ -89,8 +176,8 @@ const u3qs = [
 u3qs.forEach(([en, ja, vocabEn, vocabJa], i) => {
   const step = (i % 3) + 1;
   questions.push(
-    jpToEn(3, step, i % 2 ? '応用' : '基礎', ja, [en, en.replace('Do', 'Are').replace('Does', 'Is'), en.replace('?', '.')], 0, [{ en: vocabEn, ja: vocabJa }]),
-    errorDet(3, step, '応用', `「${ja}」正しい英文はどっち？`, [en, en.replace(/^Do/, 'Are').replace(/^Does/, 'Is')], 0, [{ en: vocabEn, ja: vocabJa }]),
+    jpToEn(3, step, i % 2 ? '応用' : '基礎', ja, jpToEnChoices(en), 0, [{ en: vocabEn, ja: vocabJa }]),
+    errorDet(3, step, '応用', `「${ja}」正しい英文はどっち？`, errorDetChoices(en), 0, [{ en: vocabEn, ja: vocabJa }]),
   );
 });
 
@@ -113,7 +200,7 @@ u4prog.forEach(([en, ja, vEn, vJa], i) => {
   const step = (i % 3) + 1;
   const wo = u4wordOrders[i];
   questions.push(
-    meaning(4, step, '応用', en, 'どういう意味？', [ja, ja.replace('してい', 'した'), ja.replace('います', 'ません')], 0, [{ en: vEn, ja: vJa }]),
+    meaning(4, step, '応用', en, 'どういう意味？', meaningChoices(ja), 0, [{ en: vEn, ja: vJa }]),
     wordOrder(4, step, '応用', wo[0], wo[1], wo[2], [{ en: vEn, ja: vJa }]),
   );
 });
@@ -129,7 +216,7 @@ u5mod.forEach(([sentence, choices, answer, ja, correct, wrong], i) => {
   const step = (i % 3) + 1;
   questions.push(
     fillIn(5, step, '応用', sentence, '___に入るのは？', choices, answer, [{ en: choices[answer], ja: '助動詞' }]),
-    jpToEn(5, step, '発展', ja, [correct, wrong, correct.replace('must', 'may')], 0, [{ en: 'modal', ja: '助動詞' }]),
+    jpToEn(5, step, '発展', ja, modalJpToEnChoices(correct, wrong), 0, [{ en: 'modal', ja: '助動詞' }]),
   );
 });
 
@@ -232,6 +319,10 @@ const tsLines = [
   '];',
   '',
 ];
+
+for (const q of questions) {
+  assertUniqueChoices(q);
+}
 
 fs.writeFileSync('src/data/questions/repetitionVariations.ts', tsLines.join('\n'));
 console.log(`Generated ${questions.length} variation questions (q537–q${id - 1})`);
