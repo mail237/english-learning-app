@@ -71,7 +71,7 @@ export default function WordOrderView({
       onWrong();
       setTimeout(() => {
         resetBoard();
-      }, 1200);
+      }, 2800);
     } else {
       setLocalFeedback('incorrect');
       onWrong(attempt);

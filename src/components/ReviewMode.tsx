@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Feedback, Question, QuestionStats, StudentData } from '../types';
 import { speakSentence, stopSpeech } from '../utils/speech';
 import { getSpeechText, shouldAutoSpeak } from '../utils/questionHelpers';
+import FeedbackContinueButton from './FeedbackContinueButton';
 import QuestionRenderer from './questions/QuestionRenderer';
 
 interface Props {
@@ -45,27 +46,33 @@ export default function ReviewMode({ questions, student, onComplete, onBack }: P
     };
   };
 
+  const goToNextQuestion = () => {
+    setCurrentIndex((idx) => {
+      if (idx + 1 >= questions.length) {
+        setFinished(true);
+        setUpdatedStudent(student ? { ...student, questionStats: { ...statsRef.current } } : null);
+        return idx;
+      }
+      return idx + 1;
+    });
+    setFeedback('none');
+    setShowAnswer(false);
+    setSelectedIndex(null);
+    setLocked(false);
+  };
+
   const advance = (isCorrect: boolean) => {
     if (!current) return;
     updateStats(current.id, isCorrect);
     setCorrectCount((prev) => prev + (isCorrect ? 1 : 0));
 
-    setTimeout(() => {
-      setCurrentIndex((idx) => {
-        if (idx + 1 >= questions.length) {
-          setFinished(true);
-          setUpdatedStudent(
-            student ? { ...student, questionStats: { ...statsRef.current } } : null,
-          );
-          return idx;
-        }
-        return idx + 1;
-      });
-      setFeedback('none');
-      setShowAnswer(false);
-      setSelectedIndex(null);
-      setLocked(false);
-    }, isCorrect ? 800 : 1500);
+    if (isCorrect) {
+      setTimeout(goToNextQuestion, 800);
+    }
+  };
+
+  const continueAfterWrong = () => {
+    goToNextQuestion();
   };
 
   const handleSelectIndex = (index: number) => {
@@ -159,6 +166,10 @@ export default function ReviewMode({ questions, student, onComplete, onBack }: P
         showTypeBadge
         showVocabHint
       />
+
+      {feedback === 'incorrect' && (
+        <FeedbackContinueButton onContinue={continueAfterWrong} />
+      )}
     </div>
   );
 }

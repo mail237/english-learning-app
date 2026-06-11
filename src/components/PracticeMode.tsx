@@ -8,6 +8,7 @@ import { speakSentence, stopSpeech } from '../utils/speech';
 import { buildPracticePool, pickNextQuestion } from '../utils/spiral';
 import { getSpeechText, shouldAutoSpeak } from '../utils/questionHelpers';
 import { buildCheckpointItem, mergeVocabEntries } from '../utils/vocabTest';
+import FeedbackContinueButton from './FeedbackContinueButton';
 import QuestionRenderer from './questions/QuestionRenderer';
 import VocabCheckpoint from './VocabCheckpoint';
 
@@ -173,9 +174,10 @@ export default function PracticeMode({ student, unit, step, onComplete, onBack }
     wrongQuestionsRef.current.set(current.id, current);
     setFeedback('incorrect');
     setShowAnswer(true);
-    setTimeout(() => {
-      maybeShowCheckpoint(loadNext);
-    }, 1500);
+  };
+
+  const continueAfterWrong = () => {
+    maybeShowCheckpoint(loadNext);
   };
 
   const handleSelectIndex = (index: number) => {
@@ -288,6 +290,10 @@ export default function PracticeMode({ student, unit, step, onComplete, onBack }
         showTypeBadge
         showVocabHint
       />
+
+      {feedback === 'incorrect' && (
+        <FeedbackContinueButton onContinue={continueAfterWrong} />
+      )}
     </div>
   );
 }

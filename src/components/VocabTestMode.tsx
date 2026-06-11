@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Question, VocabTestAnswer, VocabTestItem } from '../types';
 import { speakSentence, stopSpeech } from '../utils/speech';
 import { buildVocabTestItems } from '../utils/vocabTest';
+import FeedbackContinueButton from './FeedbackContinueButton';
 
 interface Props {
   testQuestions: Question[];
@@ -33,34 +34,46 @@ export default function VocabTestMode({ testQuestions, unit, onComplete }: Props
     return () => stopSpeech();
   }, [current]);
 
+  const goToNext = (newAnswers: VocabTestAnswer[]) => {
+    if (currentIndex + 1 >= items.length) {
+      const correctCount = newAnswers.filter((a) => a.correct).length;
+      const accuracy =
+        newAnswers.length > 0 ? Math.round((correctCount / newAnswers.length) * 100) : 100;
+      onComplete(newAnswers, accuracy);
+    } else {
+      setAnswers(newAnswers);
+      setCurrentIndex((i) => i + 1);
+      setSelected(null);
+      setLocked(false);
+    }
+  };
+
   const advance = (newAnswer: VocabTestAnswer) => {
     const newAnswers = [...answers, newAnswer];
-    setTimeout(() => {
-      if (currentIndex + 1 >= items.length) {
-        const correctCount = newAnswers.filter((a) => a.correct).length;
-        const accuracy =
-          newAnswers.length > 0
-            ? Math.round((correctCount / newAnswers.length) * 100)
-            : 100;
-        onComplete(newAnswers, accuracy);
-      } else {
-        setAnswers(newAnswers);
-        setCurrentIndex((i) => i + 1);
-        setSelected(null);
-        setLocked(false);
-      }
-    }, 600);
+    if (newAnswer.correct) {
+      setTimeout(() => goToNext(newAnswers), 800);
+    }
+  };
+
+  const continueAfterWrong = () => {
+    if (!current || selected === null) return;
+    goToNext([
+      ...answers,
+      { item: current, selected, correct: false },
+    ]);
   };
 
   const handleSelect = (index: number) => {
     if (locked || selected !== null || !current) return;
     setLocked(true);
     setSelected(index);
-    advance({
-      item: current,
-      selected: index,
-      correct: index === current.answer,
-    });
+    if (index === current.answer) {
+      advance({
+        item: current,
+        selected: index,
+        correct: true,
+      });
+    }
   };
 
   const handleReplay = () => {
@@ -72,6 +85,7 @@ export default function VocabTestMode({ testQuestions, unit, onComplete }: Props
   if (items.length === 0 || !current) return null;
 
   const isEnToJa = current.direction === 'en-to-ja';
+  const isWrong = selected !== null && selected !== current.answer;
 
   return (
     <div className="screen vocab-test-screen">
@@ -125,6 +139,20 @@ export default function VocabTestMode({ testQuestions, unit, onComplete }: Props
             </button>
           ))}
         </div>
+
+        {isWrong && (
+          <>
+            <div className="correct-reveal">
+              正解は「<strong>{current.choices[current.answer]}</strong>」だよ
+            </div>
+            <div className="feedback incorrect">残念！ 意味を覚えよう 📖</div>
+            <FeedbackContinueButton label="つぎの問題へ" onContinue={continueAfterWrong} />
+          </>
+        )}
+
+        {selected !== null && selected === current.answer && (
+          <div className="feedback correct">よくできた！ ✨</div>
+        )}
       </div>
     </div>
   );

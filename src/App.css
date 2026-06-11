@@ -476,6 +476,22 @@ body {
   font-size: var(--font-size-base);
 }
 
+.feedback-continue {
+  width: 100%;
+  margin-top: 8px;
+  animation: feedback-continue-pulse 2s ease-in-out infinite;
+}
+
+@keyframes feedback-continue-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
 /* Test mode */
 .test-info {
   display: flex;

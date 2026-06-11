@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { VocabTestItem } from '../types';
 import { speakSentence } from '../utils/speech';
+import FeedbackContinueButton from './FeedbackContinueButton';
 
 interface Props {
   item: VocabTestItem;
@@ -15,8 +16,13 @@ export default function VocabCheckpoint({ item, onDone }: Props) {
   const handleSelect = (index: number) => {
     if (selected !== null) return;
     setSelected(index);
-    setTimeout(onDone, 700);
+    if (index === item.answer) {
+      setTimeout(onDone, 800);
+    }
   };
+
+  const isCorrect = selected !== null && selected === item.answer;
+  const isWrong = selected !== null && selected !== item.answer;
 
   return (
     <div className="screen vocab-checkpoint-screen">
@@ -68,6 +74,18 @@ export default function VocabCheckpoint({ item, onDone }: Props) {
             </button>
           ))}
         </div>
+
+        {isWrong && (
+          <>
+            <div className="correct-reveal">
+              正解は「<strong>{item.choices[item.answer]}</strong>」だよ
+            </div>
+            <div className="feedback incorrect">残念！ 意味を覚えよう 📖</div>
+            <FeedbackContinueButton label="つぎへ" onContinue={onDone} />
+          </>
+        )}
+
+        {isCorrect && <div className="feedback correct">よくできた！ ✨</div>}
 
         <button type="button" className="btn btn-text checkpoint-skip" onClick={onDone}>
           スキップして練習を続ける

@@ -35,6 +35,9 @@ export default function ErrorDetectionView({
         </div>
       )}
 
+      {feedback === 'incorrect' && (
+        <div className="feedback incorrect">残念！ 正解をよく読んでね 📖</div>
+      )}
       {feedback === 'correct' && (
         <div className="feedback correct">よくできた！ ✨</div>
       )}
