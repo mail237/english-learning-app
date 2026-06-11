@@ -41,6 +41,7 @@ export default function PracticeMode({ student, unit, step, onComplete, onBack }
   const wrongQuestionsRef = useRef<Map<string, Question>>(new Map());
   const sessionVocabRef = useRef<VocabEntry[]>([]);
   const [sessionVocabCount, setSessionVocabCount] = useState(0);
+  const lastQuestionIdRef = useRef<string | null>(null);
   const questionsSinceCheckpoint = useRef(0);
   const [checkpoint, setCheckpoint] = useState<VocabTestItem | null>(null);
   const studentRef = useRef(student);
@@ -85,12 +86,13 @@ export default function PracticeMode({ student, unit, step, onComplete, onBack }
       return;
     }
 
-    const next = pickNextQuestion(pool, rem, statsRef.current);
+    const next = pickNextQuestion(pool, rem, statsRef.current, lastQuestionIdRef.current);
     if (!next) {
       completeStage();
       return;
     }
 
+    lastQuestionIdRef.current = next.id;
     setCurrent(next);
     setFeedback('none');
     setShowAnswer(false);

@@ -34,13 +34,25 @@ export function pickNextQuestion(
   pool: Question[],
   remaining: Set<string>,
   stats: Record<string, QuestionStats>,
+  lastQuestionId?: string | null,
 ): Question | null {
-  const candidates = pool.filter((q) => remaining.has(q.id));
+  let candidates = pool.filter((q) => remaining.has(q.id));
   if (candidates.length === 0) return null;
+
+  if (lastQuestionId && candidates.length > 1) {
+    const withoutLast = candidates.filter((q) => q.id !== lastQuestionId);
+    if (withoutLast.length > 0) candidates = withoutLast;
+  }
+
   return weightedPick(candidates, stats);
 }
 
 export function shuffleForTest(questions: Question[], count: number): Question[] {
-  const shuffled = [...questions].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, Math.min(count, shuffled.length));
+  const seen = new Set<string>();
+  const unique = [...questions].sort(() => Math.random() - 0.5).filter((q) => {
+    if (seen.has(q.id)) return false;
+    seen.add(q.id);
+    return true;
+  });
+  return unique.slice(0, Math.min(count, unique.length));
 }
