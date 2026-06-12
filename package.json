@@ -12,7 +12,8 @@
     "preview:ipad": "vite preview --host",
     "audit:choices": "node tools/audit-duplicate-choices.mjs",
     "audit:japanese": "node tools/audit-japanese.mjs",
-    "generate:unit6plus": "node tools/generate-unit6-plus.mjs"
+    "generate:unit6plus": "node tools/generate-unit6-plus.mjs",
+    "generate:be-spiral": "node tools/generate-be-general-spiral.mjs"
   },
   "dependencies": {
     "react": "^19.2.6",

@@ -14,7 +14,7 @@ interface Props {
 
 export default function TestMode({ unit, onComplete }: Props) {
   const [questions] = useState<Question[]>(() =>
-    shuffleForTest(getQuestionsByUnit(unit), TEST_QUESTION_COUNT),
+    shuffleForTest(getQuestionsByUnit(unit), TEST_QUESTION_COUNT, unit),
   );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [, setAnswers] = useState<TestAnswer[]>([]);

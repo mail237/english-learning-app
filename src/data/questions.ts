@@ -4,6 +4,7 @@ import { ADDITIONAL_QUESTIONS_2 } from './questions/additional2';
 import { QA_NEGATIVE_QUESTIONS } from './questions/qaNegative';
 import { REPETITION_VARIATION_QUESTIONS } from './questions/repetitionVariations';
 import { UNIT6_PLUS_QUESTIONS } from './questions/unit6plus';
+import { BE_GENERAL_SPIRAL_QUESTIONS } from './questions/beGeneralSpiral';
 
 const BASE_QUESTIONS: Question[] = [
   // Unit 1 - Step 1
@@ -88,6 +89,7 @@ export const QUESTIONS: Question[] = [
   ...QA_NEGATIVE_QUESTIONS,
   ...REPETITION_VARIATION_QUESTIONS,
   ...UNIT6_PLUS_QUESTIONS,
+  ...BE_GENERAL_SPIRAL_QUESTIONS,
 ];
 
 export function getQuestionsByUnit(unit: number): Question[] {

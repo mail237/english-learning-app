@@ -1,11 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Feedback, Question, QuestionStats, StudentData, VocabEntry, VocabTestItem } from '../types';
 import { VOCAB_CHECKPOINT_INTERVAL } from '../data/constants';
-import { getQuestionsByUnitAndStep } from '../data/questions';
 import { getVocabForQuestion } from '../data/vocab';
 import { formatStageLabel } from '../utils/unitProgress';
 import { speakSentence, stopSpeech } from '../utils/speech';
-import { buildPracticePool, pickNextQuestion } from '../utils/spiral';
+import {
+  buildSpiralPool,
+  getRequiredQuestions,
+  isSpiralQuestion,
+  pickNextPracticeQuestion,
+} from '../utils/spiral';
 import { getSpeechText, shouldAutoSpeak } from '../utils/questionHelpers';
 import { buildCheckpointItem, mergeVocabEntries } from '../utils/vocabTest';
 import FeedbackContinueButton from './FeedbackContinueButton';
@@ -26,12 +30,13 @@ interface Props {
 }
 
 export default function PracticeMode({ student, unit, step, onComplete, onBack }: Props) {
-  const unitQuestions = getQuestionsByUnitAndStep(unit, step);
-  const pool = useRef(buildPracticePool(unit, step)).current;
+  const unitQuestions = getRequiredQuestions(unit, step);
+  const spiralPool = useRef(buildSpiralPool(unit, step)).current;
   const initialRemaining = useRef(new Set(unitQuestions.map((q) => q.id)));
   const remainingRef = useRef(initialRemaining.current);
   const [remaining, setRemaining] = useState(() => new Set(initialRemaining.current));
   const [current, setCurrent] = useState<Question | null>(null);
+  const [isSpiral, setIsSpiral] = useState(false);
   const [feedback, setFeedback] = useState<Feedback>('none');
   const statsRef = useRef<Record<string, QuestionStats>>({ ...student.questionStats });
   const sessionStatsRef = useRef({ correct: 0, total: 0 });
@@ -87,19 +92,27 @@ export default function PracticeMode({ student, unit, step, onComplete, onBack }
       return;
     }
 
-    const next = pickNextQuestion(pool, rem, statsRef.current, lastQuestionIdRef.current);
-    if (!next) {
+    const pick = pickNextPracticeQuestion(
+      unit,
+      step,
+      rem,
+      spiralPool,
+      statsRef.current,
+      lastQuestionIdRef.current,
+    );
+    if (!pick) {
       completeStage();
       return;
     }
 
-    lastQuestionIdRef.current = next.id;
-    setCurrent(next);
+    lastQuestionIdRef.current = pick.question.id;
+    setIsSpiral(pick.isSpiral);
+    setCurrent(pick.question);
     setFeedback('none');
     setShowAnswer(false);
     setSelectedIndex(null);
     answered.current = false;
-  }, [pool, completeStage]);
+  }, [unit, step, spiralPool, completeStage]);
 
   const maybeShowCheckpoint = useCallback(
     (onSkip: () => void) => {
@@ -155,16 +168,25 @@ export default function PracticeMode({ student, unit, step, onComplete, onBack }
     if (!current) return;
     absorbVocab(current);
     setFeedback('correct');
-    const newRemaining = new Set(remainingRef.current);
-    newRemaining.delete(current.id);
-    syncRemaining(newRemaining);
+
+    const isRequired = remainingRef.current.has(current.id);
+    if (isRequired) {
+      const newRemaining = new Set(remainingRef.current);
+      newRemaining.delete(current.id);
+      syncRemaining(newRemaining);
+
+      setTimeout(() => {
+        if (newRemaining.size === 0) {
+          completeStage();
+        } else {
+          maybeShowCheckpoint(loadNext);
+        }
+      }, 800);
+      return;
+    }
 
     setTimeout(() => {
-      if (newRemaining.size === 0) {
-        completeStage();
-      } else {
-        maybeShowCheckpoint(loadNext);
-      }
+      maybeShowCheckpoint(loadNext);
     }, 800);
   };
 
@@ -254,6 +276,9 @@ export default function PracticeMode({ student, unit, step, onComplete, onBack }
     );
   }
 
+  const showSpiralBadge =
+    isSpiral || isSpiralQuestion(current, remainingRef.current);
+
   return (
     <div className="screen practice-screen">
       <header className="screen-header">
@@ -262,6 +287,7 @@ export default function PracticeMode({ student, unit, step, onComplete, onBack }
         </button>
         <div className="progress-info">
           <span className="stage-badge">{formatStageLabel(step)}</span>
+          {showSpiralBadge && <span className="spiral-badge">復習</span>}
           あと <strong>{remaining.size}</strong> 問
           {sessionVocabCount > 0 && (
             <span className="vocab-session-count">単語 {sessionVocabCount}</span>
@@ -296,4 +322,4 @@ export default function PracticeMode({ student, unit, step, onComplete, onBack }
       )}
     </div>
   );
-}
+};

@@ -15,3 +15,12 @@ export const SPEAKING_MAX = 8;
 
 /** 練習中に単語ミニ復習を挟む間隔（問） */
 export const VOCAB_CHECKPOINT_INTERVAL = 8;
+
+/** 練習で be動詞/一般動詞ドリルが選ばれやすくなる倍率 */
+export const SPIRAL_BE_GEN_WEIGHT = 3;
+
+/** Unit 4 以降で Units 1〜3 の復習が選ばれやすくなる倍率 */
+export const SPIRAL_PRIOR_UNIT_WEIGHT = 1.8;
+
+/** テストに混ぜるスパイラル復習の割合 */
+export const SPIRAL_TEST_RATIO = 0.25;
