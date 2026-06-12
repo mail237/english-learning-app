@@ -138,11 +138,11 @@ u3qs.forEach(([en, ja, vocabEn, vocabJa], i) => {
 
 // ── Unit 4 バリエーション（進行形）──
 const u4prog = [
-  ['I am studying English.', '英語を勉強しています。', 'studying', '勉強している'],
-  ['She is cooking dinner.', '夕食を作っています。', 'cooking', '料理している'],
-  ['They are playing soccer.', 'サッカーをしています。', 'playing', 'している'],
-  ['He is reading a book.', '本を読んでいます。', 'reading', '読んでいる'],
-  ['We are listening to music.', '音楽を聞いています。', 'listening', '聞いている'],
+  ['I am studying English.', '私は英語を勉強しています。', 'studying', '勉強している'],
+  ['She is cooking dinner.', '彼女は夕食を作っています。', 'cooking', '料理している'],
+  ['They are playing soccer.', '彼らはサッカーをしています。', 'playing', 'している'],
+  ['He is reading a book.', '彼は本を読んでいます。', 'reading', '読んでいる'],
+  ['We are listening to music.', '私たちは音楽を聞いています。', 'listening', '聞いている'],
 ];
 const u4wordOrders = [
   ['I am studying English.', ['studying', 'English', 'am', 'I'], ['I', 'am', 'studying', 'English']],
@@ -162,10 +162,10 @@ u4prog.forEach(([en, ja, vEn, vJa], i) => {
 
 // ── Unit 5 バリエーション（助動詞）──
 const u5mod = [
-  ['You ___ study hard.', ['must', 'can', 'may'], 0, '一生懸命勉強しなければならない。', 'You must study hard.', 'You can study hard.'],
-  ['___ you swim?', ['Can', 'Must', 'May'], 0, '泳げますか。', 'Can you swim?', 'Must you swim?'],
+  ['You ___ study hard.', ['must', 'can', 'may'], 0, 'あなたは一生懸命に勉強しなければなりません。', 'You must study hard.', 'You can study hard.'],
+  ['___ you swim?', ['Can', 'Must', 'May'], 0, 'あなたは泳げますか。', 'Can you swim?', 'Must you swim?'],
   ['May I ___ here?', ['sit', 'stand', 'run'], 0, 'ここに座ってもいいですか。', 'May I sit here?', 'May I stand here?'],
-  ['We ___ help others.', ['should', 'can', 'must'], 0, '他人を助けるべきだ。', 'We should help others.', 'We can help others.'],
+  ['We ___ help others.', ['should', 'can', 'must'], 0, '私たちは他人を助けるべきです。', 'We should help others.', 'We can help others.'],
 ];
 u5mod.forEach(([sentence, choices, answer, ja, correct, wrong], i) => {
   const step = (i % 3) + 1;
@@ -214,15 +214,15 @@ wakeListening.forEach((item, i) => {
 // ── 追加リスニング（通常・単元別）──
 const extraListen = [
   [1, 1, 'I am a student at this school.', ['私はこの学校の生徒です。', '私は先生です。', '私は校長です。']],
-  [1, 2, 'She is not in the classroom.', ['彼女は教室にいません。', '彼女は教室にいます。', '彼女は遅刻です。']],
+  [1, 2, 'She is not in the classroom.', ['彼女は教室にいません。', '彼女は教室にいます。', '彼女は遅刻しています。']],
   [2, 1, "I don't eat breakfast at school.", ['私は学校で朝食を食べません。', '私は学校で食べます。', '私は朝食が好きです。']],
   [2, 3, "He doesn't walk to school.", ['彼は歩いて学校に行きません。', '彼は歩いて行きます。', '彼は走って行きます。']],
   [3, 2, 'What do you do after school?', ['放課後何をしますか。', '学校は何時ですか。', '何年生ですか。']],
   [3, 3, 'Who is your homeroom teacher?', ['担任の先生は誰ですか。', '校長は誰ですか。', '友達は誰ですか。']],
-  [4, 1, 'I am talking with my friend.', ['友達と話しています。', '友達と遊んでいます。', '友達を待っています。']],
+  [4, 1, 'I am talking with my friend.', ['私は友達と話しています。', '私は友達と遊んでいます。', '私は友達を待っています。']],
   [4, 3, 'It is snowing outside.', ['外は雪が降っています。', '外は晴れです。', '外は暑いです。']],
-  [5, 2, 'You must wear a uniform.', ['制服を着なければなりません。', '制服を着てはいけません。', '制服はなくていいです。']],
-  [5, 3, 'We should practice every day.', ['毎日練習すべきです。', '毎日休むべきです。', '練習しなくていいです。']],
+  [5, 2, 'You must wear a uniform.', ['あなたは制服を着なければなりません。', '制服を着てはいけません。', '制服はなくていいです。']],
+  [5, 3, 'We should practice every day.', ['私たちは毎日練習すべきです。', '毎日休むべきです。', '練習しなくていいです。']],
 ];
 extraListen.forEach(([unit, step, en, choices], i) => {
   questions.push(listening(unit, step, '応用', en, choices, 0, [{ en: 'practice', ja: '練習' }]));
@@ -236,7 +236,7 @@ const misc = [
   fillIn(3, 2, '応用', '___ do you go to bed?', '___に入るのは？', ['When', 'Where', 'Who'], 0, [{ en: 'bed', ja: 'ベッド' }]),
   fillIn(4, 2, '応用', 'They ___ playing basketball.', '進行形。___は？', ['are', 'is', 'am'], 0, [{ en: 'basketball', ja: 'バスケ' }]),
   errorDet(2, 3, '発展', '「彼女は走りません。」正しいのは？', ["She doesn't run.", 'She is not run.'], 0, [{ en: 'run', ja: '走る' }]),
-  errorDet(4, 3, '発展', '「今読んでいない」正しいのは？', ['He is not reading now.', "He doesn't reading now."], 0, [{ en: 'reading', ja: '読んでいる' }]),
+  errorDet(4, 3, '発展', '「今は読んでいない」正しいのは？', ['He is not reading now.', "He doesn't reading now."], 0, [{ en: 'reading', ja: '読んでいる' }]),
   jpToEn(1, 1, '基礎', '彼女は親切です。', ['She is kind.', 'She are kind.', 'She is kindly.'], 0, [{ en: 'kind', ja: '親切な' }]),
   jpToEn(2, 1, '応用', '私たちはピザを食べません。', ["We don't eat pizza.", 'We are not eat pizza.', "We doesn't eat pizza."], 0, [{ en: 'pizza', ja: 'ピザ' }]),
   wordOrder(3, 1, '基礎', 'Do you have a pen?', ['pen', 'a', 'have', 'you', 'Do'], ['Do', 'you', 'have', 'a', 'pen'], [{ en: 'pen', ja: 'ペン' }]),

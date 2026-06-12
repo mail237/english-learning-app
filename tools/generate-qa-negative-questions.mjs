@@ -29,6 +29,41 @@ function errorDet(unit, step, level, question, choices, answer, vocab) {
   return { id: qid(), unit, step, level, type: 'error-detection', question, choices, answer, vocab };
 }
 
+const VOCAB_JA = {
+  happy: 'うれしい',
+  read: '読む',
+  Ken: 'ケン',
+  baseball: '野球',
+  nurse: '看護師',
+  guitar: 'ギター',
+  know: '知る',
+  desk: '机',
+  here: 'ここ',
+  swim: '泳ぐ',
+  umbrella: '傘',
+  much: 'いくら',
+  good: '得意',
+  study: '勉強する',
+  hungry: 'お腹がすいた',
+  coffee: 'コーヒー',
+  brother: '兄',
+  busy: '忙しい',
+  homework: '宿題',
+  child: '子供',
+  Osaka: '大阪',
+  candy: 'キャンディ',
+  walk: '歩く',
+  help: '助け',
+  rice: 'ご飯',
+  turn: '番',
+  English: '英語',
+  friend: '友達',
+};
+
+function vocabEntry(en) {
+  return { en, ja: VOCAB_JA[en] ?? en };
+}
+
 const questions = [];
 
 // ══════════════════════════════════════════════════════════════
@@ -38,7 +73,7 @@ questions.push(
   meaning(1, 2, '基礎', 'I am not tired.', 'この文は何の文？', ['be動詞の否定文', '一般動詞の否定文', '疑問文'], 0, [{ en: 'tired', ja: '疲れた' }]),
   fillIn(1, 2, '基礎', 'I ___ not hungry.', '否定文。___に入るのは？', ['am', 'do', 'does'], 0, [{ en: 'hungry', ja: 'お腹がすいた' }]),
   wordOrder(1, 2, '基礎', 'I am not sad.', ['sad', 'not', 'am', 'I'], ['I', 'am', 'not', 'sad'], [{ en: 'sad', ja: '悲しい' }]),
-  jpToEn(1, 2, '基礎', '私は怒っていません。', ['I am not angry.', 'I do not angry.', 'I am angry.'], 0, [{ en: 'angry', ja: '怒った' }]),
+  jpToEn(1, 2, '基礎', '私は怒っていません。', ['I am not angry.', 'I do not angry.', 'I am angry.'], 0, [{ en: 'angry', ja: '怒っている' }]),
   errorDet(1, 2, '基礎', '「私は忙しくない。」be動詞の否定文はどっち？', ['I am not busy.', 'I do not busy.'], 0, [{ en: 'busy', ja: '忙しい' }]),
   fillIn(1, 2, '基礎', 'He ___ not a doctor.', 'be動詞の否定文。___は？', ['is', 'does', 'do'], 0, [{ en: 'doctor', ja: '医者' }]),
   meaning(1, 2, '応用', 'She is not at home.', 'どういう意味？', ['家にいない', '家にいる', '家に帰る'], 0, [{ en: 'at home', ja: '家に' }]),
@@ -92,7 +127,7 @@ questions.push(
   jpToEn(2, 2, '応用', '彼は英語を話しません。', ["He doesn't speak English.", 'He is not speak English.', "He don't speak English."], 0, [{ en: 'speak', ja: '話す' }]),
   errorDet(2, 2, '応用', '一般動詞の否定文として正しいのはどっち？', ["She doesn't study hard.", 'She is not study hard.'], 0, [{ en: 'study', ja: '勉強する' }]),
   fillIn(2, 2, '応用', "We ___ go to school on Sunday.", '___に入るのは？', ["don't", 'are', 'is'], 0, [{ en: 'Sunday', ja: '日曜日' }]),
-  listening(2, 2, '応用', "Tom doesn't like vegetables.", ['トムは野菜が好きではない。', 'トムは野菜が好きだ。', 'トムは野菜を食べない（今）。'], 0, [{ en: 'vegetables', ja: '野菜' }]),
+  listening(2, 2, '応用', "Tom doesn't like vegetables.", ['トムは野菜が好きではありません。', 'トムは野菜が好きです。', 'トムは野菜を食べます。'], 0, [{ en: 'vegetables', ja: '野菜' }]),
   meaning(2, 2, '応用', "They don't live in Osaka.", 'どういう意味？', ['大阪に住んでいない', '大阪に住んでいる', '大阪出身ではない'], 0, [{ en: 'Osaka', ja: '大阪' }]),
   wordOrder(2, 2, '応用', "We don't play games at night.", ['night', 'at', 'games', 'play', "don't", 'We'], ['We', "don't", 'play', 'games', 'at', 'night'], [{ en: 'games', ja: 'ゲーム' }]),
   jpToEn(2, 2, '応用', '彼女はピアノを弾きません。', ["She doesn't play the piano.", 'She is not play the piano.', "She don't play the piano."], 0, [{ en: 'piano', ja: 'ピアノ' }]),
@@ -234,7 +269,7 @@ const contrastPairs = [
 ];
 
 for (const p of contrastPairs) {
-  const vocab = [{ en: p.v, ja: p.v }];
+  const vocab = [vocabEntry(p.v)];
   questions.push(jpToEn(p.u, p.s, p.l, p.jp, [p.ok, p.ng, p.ok.replace('not', '').replace("n't", '')], 0, vocab));
   questions.push(errorDet(p.u, p.s, p.l, `「${p.jp}」正しい英文はどっち？`, [p.ok, p.ng], 0, vocab));
 }
@@ -262,7 +297,7 @@ function sentenceToWordOrderAnswer(sentence) {
 }
 
 for (const d of wordOrderDrills) {
-  questions.push(wordOrder(d.u, d.st, d.l, d.s, d.w, sentenceToWordOrderAnswer(d.s), [{ en: d.v, ja: d.v }]));
+  questions.push(wordOrder(d.u, d.st, d.l, d.s, d.w, sentenceToWordOrderAnswer(d.s), [vocabEntry(d.v)]));
 }
 
 function esc(s) {

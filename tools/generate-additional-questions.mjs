@@ -338,7 +338,7 @@ questions.push(
   listening(3, 2, '応用', 'Where is the station?', ['駅はどこですか。', '駅は何時ですか。', '駅はどのくらい遠いですか。'], 0, [
     { en: 'station', ja: '駅' },
   ]),
-  jpToEn(3, 2, '応用', 'お父さんは何をしますか。', ['What does your father do?', 'What do your father do?', 'What is your father do?'], 0, [
+  jpToEn(3, 2, '応用', 'お父さんの仕事は何ですか。', ['What does your father do?', 'What do your father do?', 'What is your father do?'], 0, [
     { en: 'father', ja: 'お父さん' },
   ]),
   errorDet(3, 2, '応用', '正しい英文はどっち？', ['Does he like music?', 'Do he like music?'], 0, [

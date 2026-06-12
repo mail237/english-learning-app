@@ -192,7 +192,7 @@ questions.push(
   wordOrder(4, 1, '基礎', 'She is drawing a picture.', ['picture', 'a', 'drawing', 'is', 'She'], ['She', 'is', 'drawing', 'a', 'picture'], [{ en: 'drawing', ja: '描いている' }]),
   fillIn(4, 1, '基礎', 'He ___ talking on the phone.', '___に入る単語はどれ？', ['is', 'are', 'am'], 0, [{ en: 'talking', ja: '話している' }]),
   jpToEn(4, 1, '基礎', '彼らは今サッカーをしています。', ['They are playing soccer now.', 'They play soccer now.', 'They are play soccer now.'], 0, [{ en: 'playing', ja: 'している' }]),
-  listening(4, 1, '応用', 'I am doing my homework.', ['宿題をしています。', '宿題を終えました。', '宿題を忘れました。'], 0, [{ en: 'homework', ja: '宿題' }]),
+  listening(4, 1, '応用', 'I am doing my homework.', ['私は宿題をしています。', '私は宿題を終えました。', '私は宿題を忘れました。'], 0, [{ en: 'homework', ja: '宿題' }]),
   errorDet(4, 1, '基礎', '正しい英文はどっち？', ['We are waiting for the bus.', 'We is waiting for the bus.'], 0, [{ en: 'waiting', ja: '待っている' }]),
   meaning(4, 1, '応用', 'The dog is sleeping.', '犬は何をしている？', ['寝ている', '走っている', '食べている'], 0, [{ en: 'sleeping', ja: '寝ている' }]),
   fillIn(4, 1, '応用', 'They ___ having fun.', '___に入る単語はどれ？', ['are', 'is', 'am'], 0, [{ en: 'having fun', ja: '楽しんでいる' }]),

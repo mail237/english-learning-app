@@ -747,7 +747,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "meaning",
     sentence: "I am studying English.",
     question: "どういう意味？",
-    choices: ["英語を勉強しています。", "英語を勉強していません。"],
+    choices: ["私は英語を勉強しています。", "私は英語を勉強していません。"],
     answer: 0,
     showText: true,
     vocab: [
@@ -776,7 +776,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "meaning",
     sentence: "She is cooking dinner.",
     question: "どういう意味？",
-    choices: ["夕食を作っています。", "夕食を作っていません。"],
+    choices: ["彼女は夕食を作っています。", "彼女は夕食を作っていません。"],
     answer: 0,
     showText: true,
     vocab: [
@@ -805,7 +805,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "meaning",
     sentence: "They are playing soccer.",
     question: "どういう意味？",
-    choices: ["サッカーをしています。", "サッカーをしていません。"],
+    choices: ["彼らはサッカーをしています。", "彼らはサッカーをしていません。"],
     answer: 0,
     showText: true,
     vocab: [
@@ -834,7 +834,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "meaning",
     sentence: "He is reading a book.",
     question: "どういう意味？",
-    choices: ["本を読んでいます。", "本を読んでいません。"],
+    choices: ["彼は本を読んでいます。", "彼は本を読んでいません。"],
     answer: 0,
     showText: true,
     vocab: [
@@ -863,7 +863,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "meaning",
     sentence: "We are listening to music.",
     question: "どういう意味？",
-    choices: ["音楽を聞いています。", "音楽を聞いていません。"],
+    choices: ["私たちは音楽を聞いています。", "私たちは音楽を聞いていません。"],
     answer: 0,
     showText: true,
     vocab: [
@@ -904,7 +904,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     step: 1,
     level: "発展",
     type: "jp-to-en",
-    japanese: "一生懸命勉強しなければならない。",
+    japanese: "あなたは一生懸命に勉強しなければなりません。",
     question: "日本語に合う英文はどれ？",
     choices: ["You must study hard.", "You can study hard.", "You may study hard."],
     answer: 0,
@@ -932,7 +932,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     step: 2,
     level: "発展",
     type: "jp-to-en",
-    japanese: "泳げますか。",
+    japanese: "あなたは泳げますか。",
     question: "日本語に合う英文はどれ？",
     choices: ["Can you swim?", "Must you swim?", "May you swim?"],
     answer: 0,
@@ -988,7 +988,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     step: 1,
     level: "発展",
     type: "jp-to-en",
-    japanese: "他人を助けるべきだ。",
+    japanese: "私たちは他人を助けるべきです。",
     question: "日本語に合う英文はどれ？",
     choices: ["We should help others.", "We can help others.", "We must help others."],
     answer: 0,
@@ -1228,7 +1228,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "listening",
     sentence: "She is not in the classroom.",
     question: "聞こえた英文の意味はどれ？",
-    choices: ["彼女は教室にいません。", "彼女は教室にいます。", "彼女は遅刻です。"],
+    choices: ["彼女は教室にいません。", "彼女は教室にいます。", "彼女は遅刻しています。"],
     answer: 0,
     vocab: [
       { en: "practice", ja: "練習" }
@@ -1298,7 +1298,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "listening",
     sentence: "I am talking with my friend.",
     question: "聞こえた英文の意味はどれ？",
-    choices: ["友達と話しています。", "友達と遊んでいます。", "友達を待っています。"],
+    choices: ["私は友達と話しています。", "私は友達と遊んでいます。", "私は友達を待っています。"],
     answer: 0,
     vocab: [
       { en: "practice", ja: "練習" }
@@ -1326,7 +1326,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "listening",
     sentence: "You must wear a uniform.",
     question: "聞こえた英文の意味はどれ？",
-    choices: ["制服を着なければなりません。", "制服を着てはいけません。", "制服はなくていいです。"],
+    choices: ["あなたは制服を着なければなりません。", "制服を着てはいけません。", "制服はなくていいです。"],
     answer: 0,
     vocab: [
       { en: "practice", ja: "練習" }
@@ -1340,7 +1340,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     type: "listening",
     sentence: "We should practice every day.",
     question: "聞こえた英文の意味はどれ？",
-    choices: ["毎日練習すべきです。", "毎日休むべきです。", "練習しなくていいです。"],
+    choices: ["私たちは毎日練習すべきです。", "毎日休むべきです。", "練習しなくていいです。"],
     answer: 0,
     vocab: [
       { en: "practice", ja: "練習" }
@@ -1438,7 +1438,7 @@ export const REPETITION_VARIATION_QUESTIONS: Question[] = [
     step: 3,
     level: "発展",
     type: "error-detection",
-    question: "「今読んでいない」正しいのは？",
+    question: "「今は読んでいない」正しいのは？",
     choices: ["He is not reading now.", "He doesn't reading now."],
     answer: 0,
     vocab: [
