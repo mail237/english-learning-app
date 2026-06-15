@@ -82,6 +82,18 @@ export async function verifySheetsConnection(): Promise<'connected' | 'configure
   }
 }
 
+function mergeStudentLists(remote: string[]): string[] {
+  const seen = new Set(remote);
+  const merged = [...remote];
+  for (const name of STUDENTS) {
+    if (!seen.has(name)) {
+      seen.add(name);
+      merged.push(name);
+    }
+  }
+  return merged;
+}
+
 export async function fetchStudents(): Promise<string[]> {
   const config = await loadSheetsConfig();
   if (!config) return [...STUDENTS];
@@ -91,7 +103,7 @@ export async function fetchStudents(): Promise<string[]> {
     if (!res.ok) return [...STUDENTS];
     const data = await res.json();
     if (data?.ok && Array.isArray(data.students) && data.students.length > 0) {
-      return data.students as string[];
+      return mergeStudentLists(data.students as string[]);
     }
   } catch {
     // fallback below
